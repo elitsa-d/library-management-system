@@ -16,7 +16,6 @@ public class Supplier {
     private Long id;
     private String name;
     private String type;
-
     @JsonManagedReference
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
     private final List<Location> locations = new ArrayList<>();

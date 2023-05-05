@@ -7,8 +7,8 @@ import jakarta.persistence.*;
 @Table(name = "customers")
 public class Customer {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "location_generator")
-    @SequenceGenerator(name = "location_generator", sequenceName = "location_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_generator")
+    @SequenceGenerator(name = "customer_generator", sequenceName = "customer_sequence", allocationSize = 1)
     private Long id;
     private String firstName;
     private String lastName;
