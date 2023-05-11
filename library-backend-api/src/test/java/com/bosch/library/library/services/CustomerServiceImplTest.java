@@ -1,7 +1,7 @@
 package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Customer;
-import com.bosch.library.library.exceptions.InvalidCustomerIdException;
+import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,7 +82,7 @@ public class CustomerServiceImplTest {
     }
 
     @Test
-    void testUpdateCustomerUpdatesAllCustomerInfo() throws InvalidCustomerIdException {
+    void testUpdateCustomerUpdatesAllCustomerInfo() throws ElementNotFoundException {
         // Arrange mock repository
         final Customer customer = this.customerList.get(0);
         Mockito.when(this.customerRepository.findById(1L)).thenReturn(Optional.of(customer));
@@ -100,7 +100,7 @@ public class CustomerServiceImplTest {
     }
 
     @Test
-    void testUpdateCustomerUpdatesOnlyFirstName() throws InvalidCustomerIdException {
+    void testUpdateCustomerUpdatesOnlyFirstName() throws ElementNotFoundException {
         // Arrange mock repository
         final Customer customer = this.customerList.get(0);
         Mockito.when(this.customerRepository.findById(1L)).thenReturn(Optional.of(customer));
@@ -117,7 +117,7 @@ public class CustomerServiceImplTest {
     }
 
     @Test
-    void testUpdateCustomerUpdatesOnlyLastName() throws InvalidCustomerIdException {
+    void testUpdateCustomerUpdatesOnlyLastName() throws ElementNotFoundException {
         // Arrange mock repository
         final Customer customer = this.customerList.get(0);
         Mockito.when(this.customerRepository.findById(1L)).thenReturn(Optional.of(customer));
@@ -134,7 +134,7 @@ public class CustomerServiceImplTest {
     }
 
     @Test
-    void testUpdateCustomerUpdatesOnlyBiography() throws InvalidCustomerIdException {
+    void testUpdateCustomerUpdatesOnlyBiography() throws ElementNotFoundException {
         // Arrange mock repository
         final Customer customer = this.customerList.get(0);
         Mockito.when(this.customerRepository.findById(1L)).thenReturn(Optional.of(customer));
@@ -158,14 +158,14 @@ public class CustomerServiceImplTest {
         // Assert that updating nonexistent customer throws exception
         final Customer updatedCustomer = new Customer(1L, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_BIOGRAPHY);
         assertThrows(
-                InvalidCustomerIdException.class,
+                ElementNotFoundException.class,
                 () -> this.customerService.updateCustomer(updatedCustomer),
-                "Updating customer's data should throw InvalidCustomerIdException when customer optional is empty."
+                "Updating customer's data should throw ElementNotFoundException when customer optional is empty."
         );
     }
 
     @Test
-    void testDeleteCustomer() throws InvalidCustomerIdException {
+    void testDeleteCustomer() throws ElementNotFoundException {
         // Arrange mock repository
         final Customer customer = this.customerList.get(0);
         Mockito.when(this.customerRepository.findById(1L)).thenReturn(Optional.of(customer));
@@ -185,9 +185,9 @@ public class CustomerServiceImplTest {
 
         // Assert that deleting nonexistent customer throws exception
         assertThrows(
-                InvalidCustomerIdException.class,
+                ElementNotFoundException.class,
                 () -> this.customerService.deleteCustomer(1L),
-                "Deleting customer should throw InvalidCustomerIdException when customer optional is empty."
+                "Deleting customer should throw ElementNotFoundException when customer optional is empty."
         );
     }
 }

@@ -1,7 +1,7 @@
 package com.bosch.library.library.controller;
 
 import com.bosch.library.library.entities.Book;
-import com.bosch.library.library.exceptions.InvalidBookIdException;
+import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.services.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +33,7 @@ public class BookController {
         try {
             final Book book = this.bookService.updateBook(updatedBook);
             return ResponseEntity.status(HttpStatus.OK).body(book);
-        } catch (final InvalidBookIdException e) {
+        } catch (final ElementNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
@@ -43,7 +43,7 @@ public class BookController {
         try {
             final Long deletedBookId = this.bookService.deleteBook(id);
             return ResponseEntity.status(HttpStatus.OK).body(deletedBookId);
-        } catch (final InvalidBookIdException e) {
+        } catch (final ElementNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }

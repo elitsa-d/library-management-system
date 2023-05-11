@@ -2,8 +2,11 @@ package com.bosch.library.library.entities;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@Table(name = "books")
+@Table(name = "book")
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "book_generator")
@@ -13,6 +16,9 @@ public class Book {
     private String author;
     private String category;
     private Long timesRented;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    private List<BookAvailability> bookAvailabilities = new ArrayList<>();
 
     public Book() {
     }
@@ -66,5 +72,13 @@ public class Book {
 
     public void setTimesRented(final Long timesRented) {
         this.timesRented = timesRented;
+    }
+
+    public List<BookAvailability> getBookAvailabilities() {
+        return this.bookAvailabilities;
+    }
+
+    public void addBookAvailability(final BookAvailability bookAvailability) {
+        this.getBookAvailabilities().add(bookAvailability);
     }
 }

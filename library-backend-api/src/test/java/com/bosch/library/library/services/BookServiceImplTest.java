@@ -1,7 +1,7 @@
 package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Book;
-import com.bosch.library.library.exceptions.InvalidBookIdException;
+import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,7 +82,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    void testUpdateBookUpdatesAllBookInfo() throws InvalidBookIdException {
+    void testUpdateBookUpdatesAllBookInfo() throws ElementNotFoundException {
         // Arrange mock repository
         final Book book = this.bookList.get(0);
         Mockito.when(this.bookRepository.findById(1L)).thenReturn(Optional.of(book));
@@ -100,7 +100,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    void testUpdateBookUpdatesOnlyTitle() throws InvalidBookIdException {
+    void testUpdateBookUpdatesOnlyTitle() throws ElementNotFoundException {
         // Arrange mock repository
         final Book book = this.bookList.get(0);
         Mockito.when(this.bookRepository.findById(1L)).thenReturn(Optional.of(book));
@@ -117,7 +117,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    void testUpdateBookUpdatesOnlyAuthor() throws InvalidBookIdException {
+    void testUpdateBookUpdatesOnlyAuthor() throws ElementNotFoundException {
         // Arrange mock repository
         final Book book = this.bookList.get(0);
         Mockito.when(this.bookRepository.findById(1L)).thenReturn(Optional.of(book));
@@ -134,7 +134,7 @@ public class BookServiceImplTest {
     }
 
     @Test
-    void testUpdateBookUpdatesOnlyCategory() throws InvalidBookIdException {
+    void testUpdateBookUpdatesOnlyCategory() throws ElementNotFoundException {
         // Arrange mock repository
         final Book book = this.bookList.get(0);
         Mockito.when(this.bookRepository.findById(1L)).thenReturn(Optional.of(book));
@@ -158,14 +158,14 @@ public class BookServiceImplTest {
         // Assert that updating nonexistent book throws exception
         final Book updatedBook = new Book(1L, UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
         assertThrows(
-                InvalidBookIdException.class,
+                ElementNotFoundException.class,
                 () -> this.bookService.updateBook(updatedBook),
-                "Updating book's data should throw InvalidBookIdException when book optional is empty."
+                "Updating book's data should throw ElementNotFoundException when book optional is empty."
         );
     }
 
     @Test
-    void testDeleteBook() throws InvalidBookIdException {
+    void testDeleteBook() throws ElementNotFoundException {
         // Arrange mock repository
         final Book book = this.bookList.get(0);
         Mockito.when(this.bookRepository.findById(1L)).thenReturn(Optional.of(book));
@@ -185,9 +185,9 @@ public class BookServiceImplTest {
 
         // Assert that deleting nonexistent book throws exception
         assertThrows(
-                InvalidBookIdException.class,
+                ElementNotFoundException.class,
                 () -> this.bookService.deleteBook(1L),
-                "Deleting book should throw InvalidBookIdException when book optional is empty."
+                "Deleting book should throw ElementNotFoundException when book optional is empty."
         );
     }
 }

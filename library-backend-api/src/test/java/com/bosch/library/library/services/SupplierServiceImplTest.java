@@ -2,8 +2,7 @@ package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Location;
 import com.bosch.library.library.entities.Supplier;
-import com.bosch.library.library.exceptions.InvalidLocationIdException;
-import com.bosch.library.library.exceptions.InvalidSupplierIdException;
+import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.LocationRepository;
 import com.bosch.library.library.repositories.SupplierRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,7 +78,7 @@ public class SupplierServiceImplTest {
     }
 
     @Test
-    void testAddNewLocationSavesLocationToSuppliersList() throws InvalidSupplierIdException, InvalidLocationIdException {
+    void testAddNewLocationSavesLocationToSuppliersList() throws ElementNotFoundException {
         // Arrange mock repository
         final Supplier supplier = this.supplierList.get(0);
         Mockito.when(this.supplierRepository.findById(1L)).thenReturn(Optional.of(supplier));
@@ -97,7 +96,7 @@ public class SupplierServiceImplTest {
     }
 
     @Test
-    void testAddNewLocationIncreasesSuppliersListSizeWithOne() throws InvalidSupplierIdException, InvalidLocationIdException {
+    void testAddNewLocationIncreasesSuppliersListSizeWithOne() throws ElementNotFoundException {
         // Arrange mock repository
         final Supplier supplier = this.supplierList.get(0);
         supplier.addLocation(new Location(2L, "vitoshka 14"));
@@ -124,9 +123,9 @@ public class SupplierServiceImplTest {
 
         // Assert that adding location to nonexistent supplier throws exception
         assertThrows(
-                InvalidSupplierIdException.class,
+                ElementNotFoundException.class,
                 () -> this.supplierService.addNewLocation(1L, 1L),
-                "Adding new location should throw InvalidSupplierIdException when supplier optional is empty."
+                "Adding new location should throw ElementNotFoundException when supplier optional is empty."
         );
     }
 
@@ -139,9 +138,9 @@ public class SupplierServiceImplTest {
 
         // Assert that adding nonexistent location to supplier throws exception
         assertThrows(
-                InvalidLocationIdException.class,
+                ElementNotFoundException.class,
                 () -> this.supplierService.addNewLocation(1L, 1L),
-                "Adding new location should throw InvalidLocationIdException when location optional is empty."
+                "Adding new location should throw ElementNotFoundException when location optional is empty."
         );
     }
 }

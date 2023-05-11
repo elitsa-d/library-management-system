@@ -1,7 +1,7 @@
 package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Book;
-import com.bosch.library.library.exceptions.InvalidBookIdException;
+import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.BookRepository;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +26,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book updateBook(final Book updatedBook) throws InvalidBookIdException {
+    public Book updateBook(final Book updatedBook) throws ElementNotFoundException {
         final Long id = updatedBook.getId();
 
         final Book book = this.bookRepository.findById(id)
-                .orElseThrow(() -> new InvalidBookIdException("Book with id " + id + " doesn't exist."));
+                .orElseThrow(() -> new ElementNotFoundException("Book with id " + id + " doesn't exist."));
 
         if (updatedBook.getTitle() != null) {
             book.setTitle(updatedBook.getTitle());
@@ -48,9 +48,9 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Long deleteBook(final Long id) throws InvalidBookIdException {
+    public Long deleteBook(final Long id) throws ElementNotFoundException {
         final Book book = this.bookRepository.findById(id)
-                .orElseThrow(() -> new InvalidBookIdException("Book with id " + id + " doesn't exist."));
+                .orElseThrow(() -> new ElementNotFoundException("Book with id " + id + " doesn't exist."));
 
         this.bookRepository.delete(book);
         return id;

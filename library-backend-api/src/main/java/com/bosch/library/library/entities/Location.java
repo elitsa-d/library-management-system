@@ -3,8 +3,11 @@ package com.bosch.library.library.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@Table(name = "locations")
+@Table(name = "location")
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "location_generator")
@@ -16,6 +19,9 @@ public class Location {
     @ManyToOne
     @JoinColumn(name = "supplier_id", referencedColumnName = "id")
     private Supplier supplier;
+
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
+    private List<BookAvailability> bookAvailabilities = new ArrayList<>();
 
     public Location() {
     }
@@ -47,5 +53,13 @@ public class Location {
 
     public void setSupplier(final Supplier supplier) {
         this.supplier = supplier;
+    }
+
+    public List<BookAvailability> getBookAvailabilities() {
+        return this.bookAvailabilities;
+    }
+
+    public void addBookAvailability(final BookAvailability bookAvailability) {
+        this.getBookAvailabilities().add(bookAvailability);
     }
 }

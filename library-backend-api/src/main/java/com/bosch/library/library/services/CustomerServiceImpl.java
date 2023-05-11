@@ -1,7 +1,7 @@
 package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Customer;
-import com.bosch.library.library.exceptions.InvalidCustomerIdException;
+import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.CustomerRepository;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +26,11 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer updateCustomer(final Customer updatedCustomer) throws InvalidCustomerIdException {
+    public Customer updateCustomer(final Customer updatedCustomer) throws ElementNotFoundException {
         final Long id = updatedCustomer.getId();
 
         final Customer customer = this.customerRepository.findById(id)
-                .orElseThrow(() -> new InvalidCustomerIdException("Customer with id " + id + " doesn't exist."));
+                .orElseThrow(() -> new ElementNotFoundException("Customer with id " + id + " doesn't exist."));
 
         if (updatedCustomer.getFirstName() != null) {
             customer.setFirstName(updatedCustomer.getFirstName());
@@ -48,9 +48,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Long deleteCustomer(final Long id) throws InvalidCustomerIdException {
+    public Long deleteCustomer(final Long id) throws ElementNotFoundException {
         final Customer customer = this.customerRepository.findById(id)
-                .orElseThrow(() -> new InvalidCustomerIdException("Customer with id " + id + " doesn't exist."));
+                .orElseThrow(() -> new ElementNotFoundException("Customer with id " + id + " doesn't exist."));
 
         this.customerRepository.delete(customer);
         return id;

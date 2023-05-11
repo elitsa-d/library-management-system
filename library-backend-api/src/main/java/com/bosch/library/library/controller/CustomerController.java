@@ -1,7 +1,7 @@
 package com.bosch.library.library.controller;
 
 import com.bosch.library.library.entities.Customer;
-import com.bosch.library.library.exceptions.InvalidCustomerIdException;
+import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.services.CustomerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +33,7 @@ public class CustomerController {
         try {
             final Customer customer = this.customerService.updateCustomer(updatedCustomer);
             return ResponseEntity.status(HttpStatus.OK).body(customer);
-        } catch (final InvalidCustomerIdException e) {
+        } catch (final ElementNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
@@ -43,7 +43,7 @@ public class CustomerController {
         try {
             final Long deletedCustomerId = this.customerService.deleteCustomer(id);
             return ResponseEntity.status(HttpStatus.OK).body(deletedCustomerId);
-        } catch (final InvalidCustomerIdException e) {
+        } catch (final ElementNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
