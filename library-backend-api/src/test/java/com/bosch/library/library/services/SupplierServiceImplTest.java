@@ -117,8 +117,6 @@ public class SupplierServiceImplTest {
     @Test
     void testAddNewLocationThrowsOnInvalidSupplierId() {
         // Arrange mock repository
-        final Location location = new Location(1L, "opalchenska 10");
-        Mockito.when(this.locationRepository.findById(1L)).thenReturn(Optional.of(location));
         Mockito.when(this.supplierRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Assert that adding location to nonexistent supplier throws exception

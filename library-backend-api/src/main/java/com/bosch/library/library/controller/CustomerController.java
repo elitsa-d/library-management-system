@@ -38,6 +38,26 @@ public class CustomerController {
         }
     }
 
+    @PutMapping("/customers/add-to-wishlist/{customerId}/{bookId}")
+    public ResponseEntity<?> addBookToWishlist(@PathVariable final Long customerId, @PathVariable final Long bookId) {
+        try {
+            final Customer customer = this.customerService.addBookToWishlist(customerId, bookId);
+            return ResponseEntity.status(HttpStatus.OK).body(customer);
+        } catch (final ElementNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/customers/remove-from-wishlist/{customerId}/{bookId}")
+    public ResponseEntity<?> removeBookFromWishlist(@PathVariable final Long customerId, @PathVariable final Long bookId) {
+        try {
+            final Customer customer = this.customerService.removeBookFromWishlist(customerId, bookId);
+            return ResponseEntity.status(HttpStatus.OK).body(customer);
+        } catch (final ElementNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
     @DeleteMapping("/customers/{id}")
     public ResponseEntity<?> deleteCustomer(@PathVariable final Long id) {
         try {

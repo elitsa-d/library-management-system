@@ -2,6 +2,9 @@ package com.bosch.library.library.entities;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Entity
 @Table(name = "customer")
@@ -13,6 +16,13 @@ public class Customer {
     private String firstName;
     private String lastName;
     private String biography;
+
+    @ManyToMany
+    @JoinTable(
+            name = "customer_wishlist",
+            joinColumns = @JoinColumn(name = "customer_id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id"))
+    private List<Book> wishlist = new ArrayList<>();
 
     public Customer() {
     }
@@ -26,6 +36,11 @@ public class Customer {
     public Customer(final Long id, final String firstName, final String lastName, final String biography) {
         this(firstName, lastName, biography);
         this.id = id;
+    }
+
+    public Customer(final Long id, final String firstName, final String lastName, final String biography, final List<Book> wishlist) {
+        this(id, firstName, lastName, biography);
+        this.wishlist = wishlist;
     }
 
     public Long getId() {
@@ -58,5 +73,17 @@ public class Customer {
 
     public void setBiography(final String biography) {
         this.biography = biography;
+    }
+
+    public List<Book> getWishlist() {
+        return this.wishlist;
+    }
+
+    public void addBookToWishlist(final Book book) {
+        this.getWishlist().add(book);
+    }
+
+    public void removeBookFromWishlist(final Book book) {
+        this.getWishlist().remove(book);
     }
 }

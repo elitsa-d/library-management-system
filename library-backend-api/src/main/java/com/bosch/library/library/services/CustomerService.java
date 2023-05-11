@@ -7,11 +7,15 @@ import java.util.List;
 
 public interface CustomerService {
 
-    public List<Customer> getAllCustomers();
+    List<Customer> getAllCustomers();
 
-    public Customer createCustomer(Customer customer);
+    Customer createCustomer(Customer customer);
 
-    public Customer updateCustomer(Customer customer) throws ElementNotFoundException;
+    Customer updateCustomer(Customer customer) throws ElementNotFoundException;
 
-    public Long deleteCustomer(Long id) throws ElementNotFoundException;
+    Customer addBookToWishlist(Long customerId, Long bookId) throws ElementNotFoundException;
+
+    Customer removeBookFromWishlist(Long customerId, Long bookId) throws ElementNotFoundException;
+
+    Long deleteCustomer(Long id) throws ElementNotFoundException;
 }

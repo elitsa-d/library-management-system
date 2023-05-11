@@ -1,6 +1,7 @@
 package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Book;
+import com.bosch.library.library.entities.Customer;
 import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.BookRepository;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,12 @@ public class BookServiceImpl implements BookService {
     public Long deleteBook(final Long id) throws ElementNotFoundException {
         final Book book = this.bookRepository.findById(id)
                 .orElseThrow(() -> new ElementNotFoundException("Book with id " + id + " doesn't exist."));
+
+        final List<Customer> customers = book.getWishedBy();
+
+        for (final Customer customer : customers) {
+            customer.removeBookFromWishlist(book);
+        }
 
         this.bookRepository.delete(book);
         return id;

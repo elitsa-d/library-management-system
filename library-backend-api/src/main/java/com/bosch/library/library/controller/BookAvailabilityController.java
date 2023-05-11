@@ -34,8 +34,10 @@ public class BookAvailabilityController {
         try {
             final BookAvailability bookAvailability = this.bookAvailabilityService.addBookToLocation(locationId, bookId, quantity);
             return ResponseEntity.status(HttpStatus.OK).body(bookAvailability);
-        } catch (final ElementNotFoundException | ValidationException e) {
+        } catch (final ElementNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (final ValidationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
@@ -52,7 +54,7 @@ public class BookAvailabilityController {
     }
 
     @DeleteMapping("/availability/location/{locationId}/book/{bookId}")
-    public ResponseEntity<?> removeBookAvailabilityFromLocation(@PathVariable final Long locationId, @PathVariable final Long bookId) throws ElementNotFoundException {
+    public ResponseEntity<?> removeBookAvailabilityFromLocation(@PathVariable final Long locationId, @PathVariable final Long bookId) {
         try {
             final Long removedBookId = this.bookAvailabilityService.removeBookAvailabilityFromLocation(locationId, bookId);
             return ResponseEntity.status(HttpStatus.OK).body(removedBookId);

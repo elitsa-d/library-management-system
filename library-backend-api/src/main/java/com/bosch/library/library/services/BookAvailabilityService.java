@@ -8,13 +8,13 @@ import java.util.List;
 
 public interface BookAvailabilityService {
 
-    public List<BookAvailability> getAvailableBooksInLocation(Long id);
+    List<BookAvailability> getAvailableBooksInLocation(Long id);
 
-    public List<BookAvailability> getLocationsWithAvailableBook(Long id);
+    List<BookAvailability> getLocationsWithAvailableBook(Long id);
 
-    public BookAvailability addBookToLocation(Long locationId, Long bookId, Integer quantity) throws ElementNotFoundException, ValidationException;
+    BookAvailability addBookToLocation(Long locationId, Long bookId, Integer quantity) throws ElementNotFoundException, ValidationException;
 
-    public BookAvailability changeBookQuantity(Long locationId, Long bookId, Integer quantity) throws ElementNotFoundException, ValidationException;
+    BookAvailability changeBookQuantity(Long locationId, Long bookId, Integer quantity) throws ElementNotFoundException, ValidationException;
 
-    public Long removeBookAvailabilityFromLocation(Long locationId, Long bookId) throws ElementNotFoundException;
+    Long removeBookAvailabilityFromLocation(Long locationId, Long bookId) throws ElementNotFoundException;
 }

@@ -1,5 +1,6 @@
 package com.bosch.library.library.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -19,6 +20,10 @@ public class Book {
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<BookAvailability> bookAvailabilities = new ArrayList<>();
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "wishlist")
+    private final List<Customer> wishedBy = new ArrayList<>();
 
     public Book() {
     }
@@ -81,4 +86,13 @@ public class Book {
     public void addBookAvailability(final BookAvailability bookAvailability) {
         this.getBookAvailabilities().add(bookAvailability);
     }
+
+    public List<Customer> getWishedBy() {
+        return this.wishedBy;
+    }
+
+    public void addWishedBy(final Customer customer) {
+        this.getWishedBy().add(customer);
+    }
 }
+
