@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "supplier")
@@ -71,5 +72,22 @@ public class Supplier {
 
     public void setRents(final Integer rents) {
         this.rents = rents;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final Supplier supplier = (Supplier) o;
+        return this.name.equals(supplier.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.name);
     }
 }

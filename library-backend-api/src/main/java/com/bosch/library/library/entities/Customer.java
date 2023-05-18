@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Entity
@@ -85,5 +86,22 @@ public class Customer {
 
     public void removeBookFromWishlist(final Book book) {
         this.getWishlist().remove(book);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final Customer customer = (Customer) o;
+        return this.firstName.equals(customer.firstName) && this.lastName.equals(customer.lastName) && Objects.equals(this.biography, customer.biography);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.firstName, this.lastName, this.biography);
     }
 }

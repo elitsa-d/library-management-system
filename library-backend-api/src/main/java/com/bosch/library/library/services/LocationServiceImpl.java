@@ -1,7 +1,14 @@
 package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Location;
+import com.bosch.library.library.entities.dto.LocationCreateDTO;
+import com.bosch.library.library.entities.dto.LocationDTO;
+import com.bosch.library.library.entities.mappers.LocationCreateMapper;
+import com.bosch.library.library.entities.mappers.LocationMapper;
+import com.bosch.library.library.exceptions.ElementNotFoundException;
+import com.bosch.library.library.exceptions.ValidationException;
 import com.bosch.library.library.repositories.LocationRepository;
+import com.bosch.library.library.repositories.SupplierRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,17 +17,42 @@ import java.util.List;
 public class LocationServiceImpl implements LocationService {
     private final LocationRepository locationRepository;
 
-    public LocationServiceImpl(final LocationRepository locationRepository) {
+    private final SupplierRepository supplierRepository;
+
+    private final LocationMapper locationMapper;
+
+    private final LocationCreateMapper locationCreateMapper;
+
+    public LocationServiceImpl(
+            final LocationRepository locationRepository,
+            final SupplierRepository supplierRepository,
+            final LocationMapper locationMapper,
+            final LocationCreateMapper locationCreateMapper
+    ) {
         this.locationRepository = locationRepository;
+        this.supplierRepository = supplierRepository;
+        this.locationMapper = locationMapper;
+        this.locationCreateMapper = locationCreateMapper;
     }
 
     @Override
-    public List<Location> getAllLocations() {
-        return this.locationRepository.findAll();
+    public List<LocationDTO> getAllLocations() {
+        return this.locationMapper.toDTOList(this.locationRepository.findAll());
     }
 
     @Override
-    public Location createLocation(final Location location) {
-        return this.locationRepository.save(location);
+    public LocationDTO createLocation(final LocationCreateDTO locationCreateDTO) throws ValidationException, ElementNotFoundException {
+        final Long supplierId = locationCreateDTO.getSupplierId();
+        this.supplierRepository.findById(supplierId)
+                .orElseThrow(() -> new ElementNotFoundException("Supplier with id " + supplierId + " doesn't exist."));
+
+        Location location = this.locationRepository.findLocationByAddress(locationCreateDTO.getAddress());
+
+        if (location == null) {
+            location = this.locationCreateMapper.toEntity(locationCreateDTO);
+            return this.locationMapper.toDTO(this.locationRepository.save(location));
+        } else {
+            throw new ValidationException("Supplier with id " + supplierId + " already has this location.");
+        }
     }
 }

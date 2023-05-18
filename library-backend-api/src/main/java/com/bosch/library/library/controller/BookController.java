@@ -1,8 +1,10 @@
 package com.bosch.library.library.controller;
 
-import com.bosch.library.library.entities.Book;
+import com.bosch.library.library.entities.dto.BookCreateDTO;
+import com.bosch.library.library.entities.dto.BookDTO;
 import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.services.BookService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,20 +21,20 @@ public class BookController {
     }
 
     @GetMapping("/books")
-    public List<Book> getAllBooks() {
+    public List<BookDTO> getAllBooks() {
         return this.bookService.getAllBooks();
     }
 
     @PostMapping("/books")
-    public Book createBook(@RequestBody final Book book) {
-        return this.bookService.createBook(book);
+    public BookDTO createBook(@Valid @RequestBody final BookCreateDTO bookCreateDTO) {
+        return this.bookService.createBook(bookCreateDTO);
     }
 
-    @PutMapping("/books")
-    public ResponseEntity<?> editBook(@RequestBody final Book updatedBook) {
+    @PatchMapping("/books")
+    public ResponseEntity<?> editBook(@RequestBody final BookDTO updatedBook) {
         try {
-            final Book book = this.bookService.updateBook(updatedBook);
-            return ResponseEntity.status(HttpStatus.OK).body(book);
+            final BookDTO bookDTO = this.bookService.updateBook(updatedBook);
+            return ResponseEntity.status(HttpStatus.OK).body(bookDTO);
         } catch (final ElementNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

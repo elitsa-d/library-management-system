@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "book")
@@ -19,7 +20,7 @@ public class Book {
     private Long timesRented;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
-    private List<BookAvailability> bookAvailabilities = new ArrayList<>();
+    private List<Availability> availabilities = new ArrayList<>();
 
     @JsonIgnore
     @ManyToMany(mappedBy = "wishlist")
@@ -79,12 +80,12 @@ public class Book {
         this.timesRented = timesRented;
     }
 
-    public List<BookAvailability> getBookAvailabilities() {
-        return this.bookAvailabilities;
+    public List<Availability> getAvailabilities() {
+        return this.availabilities;
     }
 
-    public void addBookAvailability(final BookAvailability bookAvailability) {
-        this.getBookAvailabilities().add(bookAvailability);
+    public void addAvailability(final Availability availability) {
+        this.getAvailabilities().add(availability);
     }
 
     public List<Customer> getWishedBy() {
@@ -93,6 +94,23 @@ public class Book {
 
     public void addWishedBy(final Customer customer) {
         this.getWishedBy().add(customer);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final Book book = (Book) o;
+        return this.title.equals(book.title) && this.author.equals(book.author);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.title, this.author);
     }
 }
 

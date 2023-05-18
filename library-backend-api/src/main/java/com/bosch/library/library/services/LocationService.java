@@ -1,11 +1,14 @@
 package com.bosch.library.library.services;
 
-import com.bosch.library.library.entities.Location;
+import com.bosch.library.library.entities.dto.LocationCreateDTO;
+import com.bosch.library.library.entities.dto.LocationDTO;
+import com.bosch.library.library.exceptions.ElementNotFoundException;
+import com.bosch.library.library.exceptions.ValidationException;
 
 import java.util.List;
 
 public interface LocationService {
-    List<Location> getAllLocations();
+    List<LocationDTO> getAllLocations();
 
-    Location createLocation(Location location);
+    LocationDTO createLocation(LocationCreateDTO location) throws ValidationException, ElementNotFoundException;
 }

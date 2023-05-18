@@ -2,15 +2,24 @@ package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Location;
 import com.bosch.library.library.entities.Supplier;
+import com.bosch.library.library.entities.dto.LocationDTO;
+import com.bosch.library.library.entities.dto.SupplierCreateDTO;
+import com.bosch.library.library.entities.dto.SupplierDTO;
+import com.bosch.library.library.entities.mappers.LocationMapper;
+import com.bosch.library.library.entities.mappers.SupplierCreateMapper;
+import com.bosch.library.library.entities.mappers.SupplierMapper;
 import com.bosch.library.library.exceptions.ElementNotFoundException;
+import com.bosch.library.library.exceptions.ValidationException;
 import com.bosch.library.library.repositories.LocationRepository;
 import com.bosch.library.library.repositories.SupplierRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -29,6 +38,15 @@ public class SupplierServiceImplTest {
 
     @Mock
     LocationRepository locationRepository;
+
+    @Spy
+    SupplierMapper supplierMapper = Mappers.getMapper(SupplierMapper.class);
+
+    @Spy
+    SupplierCreateMapper supplierCreateMapper = Mappers.getMapper(SupplierCreateMapper.class);
+
+    @Spy
+    LocationMapper locationMapper = Mappers.getMapper(LocationMapper.class);
 
     @InjectMocks
     SupplierServiceImpl supplierService;
@@ -59,19 +77,21 @@ public class SupplierServiceImplTest {
         Mockito.when(this.supplierRepository.findAll()).thenReturn(this.supplierList);
 
         // Retrieve all suppliers
-        final List<Supplier> result = this.supplierService.getAllSuppliers();
+        final List<SupplierDTO> result = this.supplierService.getAllSuppliers();
+        final List<SupplierDTO> expectedResult = this.supplierMapper.toDTOList(this.supplierList);
 
         // Assert that the right list of suppliers is returned
-        assertEquals(this.supplierList, result);
+        assertEquals(expectedResult, result);
     }
 
     @Test
-    void testCreateSupplierSavesNewSupplierToRepository() {
+    void testCreateSupplierSavesNewSupplierToRepository() throws ValidationException {
         // Arrange
-        final Supplier supplier = new Supplier(3L, "Svetlina", "community center", 0);
+        final SupplierCreateDTO supplierCreateDTO = new SupplierCreateDTO("Svetlina", "community center", null);
+        final Supplier supplier = this.supplierCreateMapper.toEntity(supplierCreateDTO);
 
         // Create supplier
-        this.supplierService.createSupplier(supplier);
+        this.supplierService.createSupplier(supplierCreateDTO);
 
         // Verify that it is saved
         verify(this.supplierRepository, times(1)).save(supplier);
@@ -88,11 +108,13 @@ public class SupplierServiceImplTest {
         Mockito.when(this.locationRepository.findById(1L)).thenReturn(Optional.of(location));
 
         // Add new location to existing supplier
-        final Supplier savedSupplier = this.supplierService.addNewLocation(1L, 1L);
+        final SupplierDTO savedSupplier = this.supplierService.addNewLocation(1L, 1L);
 
         // Verify supplier is saved with the new location
         verify(this.supplierRepository, times(1)).save(supplier);
-        assertTrue(savedSupplier.getLocations().contains(location));
+
+        final LocationDTO locationDTO = this.locationMapper.toDTO(location);
+        assertTrue(savedSupplier.getLocations().contains(locationDTO));
     }
 
     @Test
@@ -107,7 +129,7 @@ public class SupplierServiceImplTest {
         Mockito.when(this.locationRepository.findById(1L)).thenReturn(Optional.of(location));
 
         // Add new location to existing supplier who already has other locations
-        final Supplier savedSupplier = this.supplierService.addNewLocation(1L, 1L);
+        final SupplierDTO savedSupplier = this.supplierService.addNewLocation(1L, 1L);
 
         // Verify that the locations list size increments by one after adding new location
         final int supplierLocationSize = savedSupplier.getLocations().size();

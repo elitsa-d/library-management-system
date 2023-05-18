@@ -2,6 +2,10 @@ package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Book;
 import com.bosch.library.library.entities.Customer;
+import com.bosch.library.library.entities.dto.BookCreateDTO;
+import com.bosch.library.library.entities.dto.BookDTO;
+import com.bosch.library.library.entities.mappers.BookCreateMapper;
+import com.bosch.library.library.entities.mappers.BookMapper;
 import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.BookRepository;
 import org.springframework.stereotype.Service;
@@ -12,22 +16,29 @@ import java.util.List;
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
 
-    public BookServiceImpl(final BookRepository bookRepository) {
+    private final BookCreateMapper bookCreateMapper;
+
+    private final BookMapper bookMapper;
+
+    public BookServiceImpl(final BookRepository bookRepository, final BookCreateMapper bookCreateMapper, final BookMapper bookMapper) {
         this.bookRepository = bookRepository;
+        this.bookCreateMapper = bookCreateMapper;
+        this.bookMapper = bookMapper;
     }
 
     @Override
-    public List<Book> getAllBooks() {
-        return this.bookRepository.findAll();
+    public List<BookDTO> getAllBooks() {
+        return this.bookMapper.toDTOList(this.bookRepository.findAll());
     }
 
     @Override
-    public Book createBook(final Book book) {
-        return this.bookRepository.save(book);
+    public BookDTO createBook(final BookCreateDTO bookCreateDTO) {
+        final Book book = this.bookCreateMapper.toEntity(bookCreateDTO);
+        return this.bookMapper.toDTO(this.bookRepository.save(book));
     }
 
     @Override
-    public Book updateBook(final Book updatedBook) throws ElementNotFoundException {
+    public BookDTO updateBook(final BookDTO updatedBook) throws ElementNotFoundException {
         final Long id = updatedBook.getId();
 
         final Book book = this.bookRepository.findById(id)
@@ -45,7 +56,7 @@ public class BookServiceImpl implements BookService {
             book.setCategory(updatedBook.getCategory());
         }
 
-        return this.bookRepository.save(book);
+        return this.bookMapper.toDTO(this.bookRepository.save(book));
     }
 
     @Override

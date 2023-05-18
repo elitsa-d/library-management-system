@@ -1,21 +1,22 @@
 package com.bosch.library.library.services;
 
-import com.bosch.library.library.entities.Customer;
+import com.bosch.library.library.entities.dto.CustomerCreateDTO;
+import com.bosch.library.library.entities.dto.CustomerDTO;
 import com.bosch.library.library.exceptions.ElementNotFoundException;
 
 import java.util.List;
 
 public interface CustomerService {
 
-    List<Customer> getAllCustomers();
+    List<CustomerDTO> getAllCustomers();
 
-    Customer createCustomer(Customer customer);
+    CustomerDTO createCustomer(CustomerCreateDTO customer);
 
-    Customer updateCustomer(Customer customer) throws ElementNotFoundException;
+    CustomerDTO updateCustomer(CustomerDTO customer) throws ElementNotFoundException;
 
-    Customer addBookToWishlist(Long customerId, Long bookId) throws ElementNotFoundException;
+    CustomerDTO addBookToWishlist(Long customerId, Long bookId) throws ElementNotFoundException;
 
-    Customer removeBookFromWishlist(Long customerId, Long bookId) throws ElementNotFoundException;
+    CustomerDTO removeBookFromWishlist(Long customerId, Long bookId) throws ElementNotFoundException;
 
     Long deleteCustomer(Long id) throws ElementNotFoundException;
 }

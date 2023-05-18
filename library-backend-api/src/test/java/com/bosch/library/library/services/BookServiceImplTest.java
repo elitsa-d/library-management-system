@@ -1,14 +1,20 @@
 package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Book;
+import com.bosch.library.library.entities.dto.BookCreateDTO;
+import com.bosch.library.library.entities.dto.BookDTO;
+import com.bosch.library.library.entities.mappers.BookCreateMapper;
+import com.bosch.library.library.entities.mappers.BookMapper;
 import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -17,14 +23,18 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class BookServiceImplTest {
     @Mock
     BookRepository bookRepository;
+
+    @Spy
+    BookMapper bookMapper = Mappers.getMapper(BookMapper.class);
+
+    @Spy
+    BookCreateMapper bookCreateMapper = Mappers.getMapper(BookCreateMapper.class);
 
     @InjectMocks
     BookServiceImpl bookService;
@@ -63,19 +73,21 @@ public class BookServiceImplTest {
         Mockito.when(this.bookRepository.findAll()).thenReturn(this.bookList);
 
         // Retrieve all books
-        final List<Book> result = this.bookService.getAllBooks();
+        final List<BookDTO> result = this.bookService.getAllBooks();
+        final List<BookDTO> expectedResult = this.bookMapper.toDTOList(this.bookList);
 
         // Assert that the right list of books is returned
-        assertEquals(this.bookList, result);
+        assertEquals(expectedResult, result);
     }
 
     @Test
     void testCreateBookSavesNewBookToRepository() {
         // Arrange
-        final Book book = new Book(4L, UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
+        final BookCreateDTO bookCreateDTO = new BookCreateDTO(UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
+        final Book book = this.bookCreateMapper.toEntity(bookCreateDTO);
 
         // Create book
-        this.bookService.createBook(book);
+        this.bookService.createBook(bookCreateDTO);
 
         // Verify that it is saved
         verify(this.bookRepository, times(1)).save(book);
@@ -89,8 +101,8 @@ public class BookServiceImplTest {
         Mockito.when(this.bookRepository.save(any(Book.class))).thenReturn(book);
 
         // Change book's data
-        final Book updatedBook = new Book(1L, UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
-        final Book result = this.bookService.updateBook(updatedBook);
+        final BookDTO updatedBook = new BookDTO(1L, UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
+        final BookDTO result = this.bookService.updateBook(updatedBook);
 
         // Assert that all new data is saved and valid
         verify(this.bookRepository, times(1)).save(book);
@@ -107,8 +119,8 @@ public class BookServiceImplTest {
         Mockito.when(this.bookRepository.save(any(Book.class))).thenReturn(book);
 
         // Change book's title
-        final Book updatedBook = new Book(1L, UPDATED_TITLE, null, null);
-        final Book result = this.bookService.updateBook(updatedBook);
+        final BookDTO updatedBook = new BookDTO(1L, UPDATED_TITLE, null, null);
+        final BookDTO result = this.bookService.updateBook(updatedBook);
 
         // Assert that only the title is updated
         assertEquals(UPDATED_TITLE, result.getTitle());
@@ -124,8 +136,8 @@ public class BookServiceImplTest {
         Mockito.when(this.bookRepository.save(any(Book.class))).thenReturn(book);
 
         // Change book's author
-        final Book updatedBook = new Book(1L, null, UPDATED_AUTHOR, null);
-        final Book result = this.bookService.updateBook(updatedBook);
+        final BookDTO updatedBook = new BookDTO(1L, null, UPDATED_AUTHOR, null);
+        final BookDTO result = this.bookService.updateBook(updatedBook);
 
         // Assert that only the author is updated
         assertEquals(DEFAULT_TITLE, result.getTitle());
@@ -141,8 +153,8 @@ public class BookServiceImplTest {
         Mockito.when(this.bookRepository.save(any(Book.class))).thenReturn(book);
 
         // Change book's category
-        final Book updatedBook = new Book(1L, null, null, UPDATED_CATEGORY);
-        final Book result = this.bookService.updateBook(updatedBook);
+        final BookDTO updatedBook = new BookDTO(1L, null, null, UPDATED_CATEGORY);
+        final BookDTO result = this.bookService.updateBook(updatedBook);
 
         // Assert that only the category is updated
         assertEquals(DEFAULT_TITLE, result.getTitle());
@@ -156,7 +168,7 @@ public class BookServiceImplTest {
         Mockito.when(this.bookRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Assert that updating nonexistent book throws exception
-        final Book updatedBook = new Book(1L, UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
+        final BookDTO updatedBook = new BookDTO(1L, UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
         assertThrows(
                 ElementNotFoundException.class,
                 () -> this.bookService.updateBook(updatedBook),

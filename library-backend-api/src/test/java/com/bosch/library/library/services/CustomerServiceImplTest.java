@@ -1,14 +1,20 @@
 package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Customer;
+import com.bosch.library.library.entities.dto.CustomerCreateDTO;
+import com.bosch.library.library.entities.dto.CustomerDTO;
+import com.bosch.library.library.entities.mappers.CustomerCreateMapper;
+import com.bosch.library.library.entities.mappers.CustomerMapper;
 import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -26,6 +32,12 @@ public class CustomerServiceImplTest {
 
     @Mock
     CustomerRepository customerRepository;
+
+    @Spy
+    CustomerMapper customerMapper = Mappers.getMapper(CustomerMapper.class);
+
+    @Spy
+    CustomerCreateMapper customerCreateMapper = Mappers.getMapper(CustomerCreateMapper.class);
 
     @InjectMocks
     CustomerServiceImpl customerService;
@@ -63,19 +75,21 @@ public class CustomerServiceImplTest {
         Mockito.when(this.customerRepository.findAll()).thenReturn(this.customerList);
 
         // Retrieve all customers
-        final List<Customer> result = this.customerService.getAllCustomers();
+        final List<CustomerDTO> result = this.customerService.getAllCustomers();
+        final List<CustomerDTO> expectedResult = this.customerMapper.toDTOList(this.customerList);
 
         // Assert that the right list of customers is returned
-        assertEquals(this.customerList, result);
+        assertEquals(expectedResult, result);
     }
 
     @Test
     void testCreateCustomerSavesNewCustomerToRepository() {
         // Arrange
-        final Customer customer = new Customer(3L, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_BIOGRAPHY);
+        final CustomerCreateDTO customerCreateDTO = new CustomerCreateDTO(UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_BIOGRAPHY);
+        final Customer customer = this.customerCreateMapper.toEntity(customerCreateDTO);
 
         // Create customer
-        this.customerService.createCustomer(customer);
+        this.customerService.createCustomer(customerCreateDTO);
 
         // Verify that it is saved
         verify(this.customerRepository, times(1)).save(customer);
@@ -89,8 +103,8 @@ public class CustomerServiceImplTest {
         Mockito.when(this.customerRepository.save(any(Customer.class))).thenReturn(customer);
 
         // Change customer's data
-        final Customer updatedCustomer = new Customer(1L, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_BIOGRAPHY);
-        final Customer result = this.customerService.updateCustomer(updatedCustomer);
+        final CustomerDTO updatedCustomer = new CustomerDTO(1L, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_BIOGRAPHY);
+        final CustomerDTO result = this.customerService.updateCustomer(updatedCustomer);
 
         // Assert that all new data is saved and valid
         verify(this.customerRepository, times(1)).save(customer);
@@ -107,8 +121,8 @@ public class CustomerServiceImplTest {
         Mockito.when(this.customerRepository.save(any(Customer.class))).thenReturn(customer);
 
         // Change customer's first name
-        final Customer updatedCustomer = new Customer(1L, UPDATED_FIRST_NAME, null, null);
-        final Customer result = this.customerService.updateCustomer(updatedCustomer);
+        final CustomerDTO updatedCustomer = new CustomerDTO(1L, UPDATED_FIRST_NAME, null, null);
+        final CustomerDTO result = this.customerService.updateCustomer(updatedCustomer);
 
         // Assert that only the first name is updated
         assertEquals(UPDATED_FIRST_NAME, result.getFirstName());
@@ -124,8 +138,8 @@ public class CustomerServiceImplTest {
         Mockito.when(this.customerRepository.save(any(Customer.class))).thenReturn(customer);
 
         // Change customer's last name
-        final Customer updatedCustomer = new Customer(1L, null, UPDATED_LAST_NAME, null);
-        final Customer result = this.customerService.updateCustomer(updatedCustomer);
+        final CustomerDTO updatedCustomer = new CustomerDTO(1L, null, UPDATED_LAST_NAME, null);
+        final CustomerDTO result = this.customerService.updateCustomer(updatedCustomer);
 
         // Assert that only the last name is updated
         assertEquals(DEFAULT_FIRST_NAME, result.getFirstName());
@@ -141,8 +155,8 @@ public class CustomerServiceImplTest {
         Mockito.when(this.customerRepository.save(any(Customer.class))).thenReturn(customer);
 
         // Change customer's biography
-        final Customer updatedCustomer = new Customer(1L, null, null, UPDATED_BIOGRAPHY);
-        final Customer result = this.customerService.updateCustomer(updatedCustomer);
+        final CustomerDTO updatedCustomer = new CustomerDTO(1L, null, null, UPDATED_BIOGRAPHY);
+        final CustomerDTO result = this.customerService.updateCustomer(updatedCustomer);
 
         // Assert that only the biography is updated
         assertEquals(DEFAULT_FIRST_NAME, result.getFirstName());
@@ -156,7 +170,7 @@ public class CustomerServiceImplTest {
         Mockito.when(this.customerRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Assert that updating nonexistent customer throws exception
-        final Customer updatedCustomer = new Customer(1L, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_BIOGRAPHY);
+        final CustomerDTO updatedCustomer = new CustomerDTO(1L, UPDATED_FIRST_NAME, UPDATED_LAST_NAME, UPDATED_BIOGRAPHY);
         assertThrows(
                 ElementNotFoundException.class,
                 () -> this.customerService.updateCustomer(updatedCustomer),

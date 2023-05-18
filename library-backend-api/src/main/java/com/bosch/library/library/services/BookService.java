@@ -1,16 +1,17 @@
 package com.bosch.library.library.services;
 
-import com.bosch.library.library.entities.Book;
+import com.bosch.library.library.entities.dto.BookCreateDTO;
+import com.bosch.library.library.entities.dto.BookDTO;
 import com.bosch.library.library.exceptions.ElementNotFoundException;
 
 import java.util.List;
 
 public interface BookService {
-    List<Book> getAllBooks();
+    List<BookDTO> getAllBooks();
 
-    Book createBook(Book customer);
+    BookDTO createBook(BookCreateDTO book);
 
-    Book updateBook(Book customer) throws ElementNotFoundException;
+    BookDTO updateBook(BookDTO book) throws ElementNotFoundException;
 
     Long deleteBook(Long id) throws ElementNotFoundException;
 }

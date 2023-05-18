@@ -1,8 +1,10 @@
 package com.bosch.library.library.controller;
 
-import com.bosch.library.library.entities.Customer;
+import com.bosch.library.library.entities.dto.CustomerCreateDTO;
+import com.bosch.library.library.entities.dto.CustomerDTO;
 import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.services.CustomerService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,20 +21,20 @@ public class CustomerController {
     }
 
     @GetMapping("/customers")
-    public List<Customer> getAllCustomers() {
+    public List<CustomerDTO> getAllCustomers() {
         return this.customerService.getAllCustomers();
     }
 
     @PostMapping("/customers")
-    public Customer createCustomer(@RequestBody final Customer customer) {
-        return this.customerService.createCustomer(customer);
+    public CustomerDTO createCustomer(@Valid @RequestBody final CustomerCreateDTO customerCreateDTO) {
+        return this.customerService.createCustomer(customerCreateDTO);
     }
 
-    @PutMapping("/customers")
-    public ResponseEntity<?> editCustomer(@RequestBody final Customer updatedCustomer) {
+    @PatchMapping("/customers")
+    public ResponseEntity<?> editCustomer(@RequestBody final CustomerDTO updatedCustomer) {
         try {
-            final Customer customer = this.customerService.updateCustomer(updatedCustomer);
-            return ResponseEntity.status(HttpStatus.OK).body(customer);
+            final CustomerDTO customerDTO = this.customerService.updateCustomer(updatedCustomer);
+            return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
         } catch (final ElementNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
@@ -41,8 +43,8 @@ public class CustomerController {
     @PutMapping("/customers/add-to-wishlist/{customerId}/{bookId}")
     public ResponseEntity<?> addBookToWishlist(@PathVariable final Long customerId, @PathVariable final Long bookId) {
         try {
-            final Customer customer = this.customerService.addBookToWishlist(customerId, bookId);
-            return ResponseEntity.status(HttpStatus.OK).body(customer);
+            final CustomerDTO customerDTO = this.customerService.addBookToWishlist(customerId, bookId);
+            return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
         } catch (final ElementNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
@@ -51,8 +53,8 @@ public class CustomerController {
     @PutMapping("/customers/remove-from-wishlist/{customerId}/{bookId}")
     public ResponseEntity<?> removeBookFromWishlist(@PathVariable final Long customerId, @PathVariable final Long bookId) {
         try {
-            final Customer customer = this.customerService.removeBookFromWishlist(customerId, bookId);
-            return ResponseEntity.status(HttpStatus.OK).body(customer);
+            final CustomerDTO customerDTO = this.customerService.removeBookFromWishlist(customerId, bookId);
+            return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
         } catch (final ElementNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

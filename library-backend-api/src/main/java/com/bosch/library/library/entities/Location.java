@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "location")
@@ -21,7 +22,7 @@ public class Location {
     private Supplier supplier;
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
-    private List<BookAvailability> bookAvailabilities = new ArrayList<>();
+    private List<Availability> availabilities = new ArrayList<>();
 
     public Location() {
     }
@@ -55,11 +56,28 @@ public class Location {
         this.supplier = supplier;
     }
 
-    public List<BookAvailability> getBookAvailabilities() {
-        return this.bookAvailabilities;
+    public List<Availability> getAvailabilities() {
+        return this.availabilities;
     }
 
-    public void addBookAvailability(final BookAvailability bookAvailability) {
-        this.getBookAvailabilities().add(bookAvailability);
+    public void addAvailability(final Availability availability) {
+        this.getAvailabilities().add(availability);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final Location location = (Location) o;
+        return this.address.equals(location.address);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.address);
     }
 }

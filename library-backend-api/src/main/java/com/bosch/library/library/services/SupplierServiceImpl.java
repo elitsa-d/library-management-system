@@ -2,7 +2,12 @@ package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Location;
 import com.bosch.library.library.entities.Supplier;
+import com.bosch.library.library.entities.dto.SupplierCreateDTO;
+import com.bosch.library.library.entities.dto.SupplierDTO;
+import com.bosch.library.library.entities.mappers.SupplierCreateMapper;
+import com.bosch.library.library.entities.mappers.SupplierMapper;
 import com.bosch.library.library.exceptions.ElementNotFoundException;
+import com.bosch.library.library.exceptions.ValidationException;
 import com.bosch.library.library.repositories.LocationRepository;
 import com.bosch.library.library.repositories.SupplierRepository;
 import org.springframework.stereotype.Service;
@@ -14,24 +19,50 @@ public class SupplierServiceImpl implements SupplierService {
 
     private final SupplierRepository supplierRepository;
     private final LocationRepository locationRepository;
+    private final SupplierMapper supplierMapper;
+    private final SupplierCreateMapper supplierCreateMapper;
 
-    public SupplierServiceImpl(final SupplierRepository supplierRepository, final LocationRepository locationRepository) {
+    public SupplierServiceImpl(
+            final SupplierRepository supplierRepository,
+            final LocationRepository locationRepository,
+            final SupplierMapper supplierMapper,
+            final SupplierCreateMapper supplierCreateMapper
+    ) {
         this.supplierRepository = supplierRepository;
         this.locationRepository = locationRepository;
+        this.supplierMapper = supplierMapper;
+        this.supplierCreateMapper = supplierCreateMapper;
     }
 
     @Override
-    public List<Supplier> getAllSuppliers() {
-        return this.supplierRepository.findAll();
+    public List<SupplierDTO> getAllSuppliers() {
+        return this.supplierMapper.toDTOList(this.supplierRepository.findAll());
     }
 
     @Override
-    public Supplier createSupplier(final Supplier supplier) {
-        return this.supplierRepository.save(supplier);
+    public SupplierDTO createSupplier(final SupplierCreateDTO supplierCreateDTO) throws ValidationException {
+        final String supplierName = supplierCreateDTO.getName();
+        Supplier supplier = this.supplierRepository.findSupplierByName(supplierName);
+
+        if (supplier == null) {
+            supplier = this.supplierCreateMapper.toEntity(supplierCreateDTO);
+
+            final List<Location> locations = supplier.getLocations();
+            locations.forEach(location -> this.locationRepository.findLocationByAddress(location.getAddress()));
+            for (final Location location : locations) {
+                final Location savedLocation = this.locationRepository.findLocationByAddress(location.getAddress());
+                if (savedLocation != null) {
+                    throw new ValidationException("The location with address \"" + savedLocation.getAddress() + "\" is already owned by another supplier.");
+                }
+            }
+            return this.supplierMapper.toDTO(this.supplierRepository.save(supplier));
+        } else {
+            throw new ValidationException("Supplier with name \"" + supplierName + "\" already exists.");
+        }
     }
 
     @Override
-    public Supplier addNewLocation(final Long supplierId, final Long locationId) throws ElementNotFoundException {
+    public SupplierDTO addNewLocation(final Long supplierId, final Long locationId) throws ElementNotFoundException {
         final Supplier supplier = this.supplierRepository.findById(supplierId)
                 .orElseThrow(() -> new ElementNotFoundException("Supplier with id " + supplierId + " doesn't exist."));
 
@@ -40,6 +71,6 @@ public class SupplierServiceImpl implements SupplierService {
                 .orElseThrow(() -> new ElementNotFoundException("Location with id " + locationId + " doesn't exist."));
 
         supplier.addLocation(location);
-        return this.supplierRepository.save(supplier);
+        return this.supplierMapper.toDTO(this.supplierRepository.save(supplier));
     }
 }

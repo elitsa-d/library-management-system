@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "location_book_availability")
-public class BookAvailability {
+public class Availability {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "availability_generator")
     @SequenceGenerator(name = "availability_generator", sequenceName = "availability_sequence", allocationSize = 1)
@@ -22,16 +22,12 @@ public class BookAvailability {
     private Book book;
     private Integer quantity;
 
-    public BookAvailability() {
+    public Availability() {
     }
 
-    public BookAvailability(final Location location, final Book book) {
+    public Availability(final Location location, final Book book, final Integer quantity) {
         this.location = location;
         this.book = book;
-    }
-
-    public BookAvailability(final Location location, final Book book, final Integer quantity) {
-        this(location, book);
         this.quantity = quantity;
     }
 

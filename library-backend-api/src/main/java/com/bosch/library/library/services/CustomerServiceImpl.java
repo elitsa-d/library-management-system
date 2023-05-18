@@ -2,6 +2,10 @@ package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Book;
 import com.bosch.library.library.entities.Customer;
+import com.bosch.library.library.entities.dto.CustomerCreateDTO;
+import com.bosch.library.library.entities.dto.CustomerDTO;
+import com.bosch.library.library.entities.mappers.CustomerCreateMapper;
+import com.bosch.library.library.entities.mappers.CustomerMapper;
 import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.BookRepository;
 import com.bosch.library.library.repositories.CustomerRepository;
@@ -13,24 +17,34 @@ import java.util.List;
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final BookRepository bookRepository;
+    private final CustomerMapper customerMapper;
+    private final CustomerCreateMapper customerCreateMapper;
 
-    public CustomerServiceImpl(final CustomerRepository customerRepository, final BookRepository bookRepository) {
+    public CustomerServiceImpl(
+            final CustomerRepository customerRepository,
+            final BookRepository bookRepository,
+            final CustomerMapper customerMapper,
+            final CustomerCreateMapper customerCreateMapper
+    ) {
         this.customerRepository = customerRepository;
         this.bookRepository = bookRepository;
+        this.customerMapper = customerMapper;
+        this.customerCreateMapper = customerCreateMapper;
     }
 
     @Override
-    public List<Customer> getAllCustomers() {
-        return this.customerRepository.findAll();
+    public List<CustomerDTO> getAllCustomers() {
+        return this.customerMapper.toDTOList(this.customerRepository.findAll());
     }
 
     @Override
-    public Customer createCustomer(final Customer customer) {
-        return this.customerRepository.save(customer);
+    public CustomerDTO createCustomer(final CustomerCreateDTO customerCreateDTO) {
+        final Customer customer = this.customerCreateMapper.toEntity(customerCreateDTO);
+        return this.customerMapper.toDTO(this.customerRepository.save(customer));
     }
 
     @Override
-    public Customer updateCustomer(final Customer updatedCustomer) throws ElementNotFoundException {
+    public CustomerDTO updateCustomer(final CustomerDTO updatedCustomer) throws ElementNotFoundException {
         final Long id = updatedCustomer.getId();
 
         final Customer customer = this.customerRepository.findById(id)
@@ -48,23 +62,26 @@ public class CustomerServiceImpl implements CustomerService {
             customer.setBiography(updatedCustomer.getBiography());
         }
 
-        return this.customerRepository.save(customer);
+        return this.customerMapper.toDTO(this.customerRepository.save(customer));
     }
 
     @Override
-    public Customer addBookToWishlist(final Long customerId, final Long bookId) throws ElementNotFoundException {
+    public CustomerDTO addBookToWishlist(final Long customerId, final Long bookId) throws ElementNotFoundException {
         final Customer customer = this.customerRepository.findById(customerId)
                 .orElseThrow(() -> new ElementNotFoundException("Customer with id " + customerId + " doesn't exist."));
 
         final Book book = this.bookRepository.findById(bookId)
                 .orElseThrow(() -> new ElementNotFoundException("Book with id " + bookId + " doesn't exist."));
 
-        customer.addBookToWishlist(book);
-        return this.customerRepository.save(customer);
+        if (!customer.getWishlist().contains(book)) {
+            customer.addBookToWishlist(book);
+        }
+
+        return this.customerMapper.toDTO(this.customerRepository.save(customer));
     }
 
     @Override
-    public Customer removeBookFromWishlist(final Long customerId, final Long bookId) throws ElementNotFoundException {
+    public CustomerDTO removeBookFromWishlist(final Long customerId, final Long bookId) throws ElementNotFoundException {
         final Customer customer = this.customerRepository.findById(customerId)
                 .orElseThrow(() -> new ElementNotFoundException("Customer with id " + customerId + " doesn't exist."));
 
@@ -72,7 +89,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .orElseThrow(() -> new ElementNotFoundException("Book with id " + bookId + " doesn't exist."));
 
         customer.removeBookFromWishlist(book);
-        return this.customerRepository.save(customer);
+        return this.customerMapper.toDTO(this.customerRepository.save(customer));
     }
 
     @Override
