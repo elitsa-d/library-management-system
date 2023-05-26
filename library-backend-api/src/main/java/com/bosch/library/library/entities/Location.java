@@ -27,9 +27,13 @@ public class Location {
     public Location() {
     }
 
-    public Location(final Long id, final String address) {
-        this.id = id;
+    public Location(final String address) {
         this.address = address;
+    }
+
+    public Location(final Long id, final String address) {
+        this(address);
+        this.id = id;
     }
 
     public Long getId() {
