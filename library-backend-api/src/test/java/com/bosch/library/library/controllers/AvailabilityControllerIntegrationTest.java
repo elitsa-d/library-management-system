@@ -3,6 +3,7 @@ package com.bosch.library.library.controllers;
 import com.bosch.library.library.entities.Availability;
 import com.bosch.library.library.entities.Book;
 import com.bosch.library.library.entities.Location;
+import com.bosch.library.library.entities.criteria.BookCriteria;
 import com.bosch.library.library.entities.dto.AvailabilityByBookDTO;
 import com.bosch.library.library.entities.dto.AvailabilityByLocationDTO;
 import com.bosch.library.library.entities.dto.AvailabilityCreateDTO;
@@ -10,6 +11,7 @@ import com.bosch.library.library.entities.dto.AvailabilityDTO;
 import com.bosch.library.library.repositories.AvailabilityRepository;
 import com.bosch.library.library.repositories.BookRepository;
 import com.bosch.library.library.repositories.LocationRepository;
+import com.bosch.library.library.repositories.specifications.BookSpecification;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,7 +110,7 @@ public class AvailabilityControllerIntegrationTest {
     @Test
     public void testGetLocationsWithAvailableBook() {
         // Prepare data
-        final Book book = this.bookRepository.findBookByTitleAndAuthor(DEFAULT_TITLE, DEFAULT_AUTHOR);
+        final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final String requestUrl = String.format("/api/availability/locations-having-book/%d", book.getId());
 
         // Perform get request
@@ -232,7 +234,7 @@ public class AvailabilityControllerIntegrationTest {
     public void testChangeBookQuantity() {
         // Prepare data
         final Location location = this.locationRepository.findLocationByAddress(DEFAULT_ADDRESS);
-        final Book book = this.bookRepository.findBookByTitleAndAuthor(DEFAULT_TITLE, DEFAULT_AUTHOR);
+        final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final AvailabilityCreateDTO availabilityCreateDTO = new AvailabilityCreateDTO(location.getId(), book.getId(), UPDATED_QUANTITY);
         final String requestUrl = "/api/availability";
 
@@ -262,7 +264,7 @@ public class AvailabilityControllerIntegrationTest {
     public void testChangeBookQuantityThrowsOnInvalidLocationId() {
         // Prepare data
         this.locationRepository.deleteById(MISSING_ID);
-        final Book book = this.bookRepository.findBookByTitleAndAuthor(DEFAULT_TITLE, DEFAULT_AUTHOR);
+        final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final AvailabilityCreateDTO availabilityCreateDTO = new AvailabilityCreateDTO(MISSING_ID, book.getId(), UPDATED_QUANTITY);
         final String requestUrl = "/api/availability";
 
@@ -308,7 +310,7 @@ public class AvailabilityControllerIntegrationTest {
     public void testChangeBookQuantityThrowsOnNegativeQuantity() {
         // Prepare data
         final Location location = this.locationRepository.findLocationByAddress(DEFAULT_ADDRESS);
-        final Book book = this.bookRepository.findBookByTitleAndAuthor(DEFAULT_TITLE, DEFAULT_AUTHOR);
+        final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final AvailabilityCreateDTO availabilityCreateDTO = new AvailabilityCreateDTO(location.getId(), book.getId(), -UPDATED_QUANTITY);
         final String requestUrl = "/api/availability";
 
@@ -331,7 +333,7 @@ public class AvailabilityControllerIntegrationTest {
     public void testRemoveBookAvailabilityFromLocation() {
         // Prepare data
         final Location location = this.locationRepository.findLocationByAddress(DEFAULT_ADDRESS);
-        final Book book = this.bookRepository.findBookByTitleAndAuthor(DEFAULT_TITLE, DEFAULT_AUTHOR);
+        final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final String requestUrl = String.format("/api/availability/location/%d/book/%d", location.getId(), book.getId());
 
         // Perform delete request
@@ -353,7 +355,7 @@ public class AvailabilityControllerIntegrationTest {
     public void testRemoveBookAvailabilityFromLocationThrowsOnInvalidLocationId() {
         // Prepare data
         this.locationRepository.deleteById(MISSING_ID);
-        final Book book = this.bookRepository.findBookByTitleAndAuthor(DEFAULT_TITLE, DEFAULT_AUTHOR);
+        final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final String requestUrl = String.format("/api/availability/location/%d/book/%d", MISSING_ID, book.getId());
 
         // Perform delete request

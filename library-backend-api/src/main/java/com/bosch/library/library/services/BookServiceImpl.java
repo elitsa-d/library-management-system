@@ -2,12 +2,14 @@ package com.bosch.library.library.services;
 
 import com.bosch.library.library.entities.Book;
 import com.bosch.library.library.entities.Customer;
+import com.bosch.library.library.entities.criteria.BookCriteria;
 import com.bosch.library.library.entities.dto.BookCreateDTO;
 import com.bosch.library.library.entities.dto.BookDTO;
 import com.bosch.library.library.entities.mappers.BookCreateMapper;
 import com.bosch.library.library.entities.mappers.BookMapper;
 import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.BookRepository;
+import com.bosch.library.library.repositories.specifications.BookSpecification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,8 +29,9 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookDTO> getAllBooks() {
-        return this.bookMapper.toDTOList(this.bookRepository.findAll());
+    public List<BookDTO> getAllBooks(final BookCriteria bookCriteria) {
+        final List<Book> books = this.bookRepository.findAll(BookSpecification.hasCriteria(bookCriteria));
+        return this.bookMapper.toDTOList(books);
     }
 
     @Override

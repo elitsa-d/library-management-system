@@ -1,5 +1,6 @@
 package com.bosch.library.library.controller;
 
+import com.bosch.library.library.entities.criteria.BookCriteria;
 import com.bosch.library.library.entities.dto.BookCreateDTO;
 import com.bosch.library.library.entities.dto.BookDTO;
 import com.bosch.library.library.exceptions.ElementNotFoundException;
@@ -21,8 +22,8 @@ public class BookController {
     }
 
     @GetMapping("/books")
-    public List<BookDTO> getAllBooks() {
-        return this.bookService.getAllBooks();
+    public List<BookDTO> getAllBooks(@ModelAttribute final BookCriteria bookCriteria) {
+        return this.bookService.getAllBooks(bookCriteria);
     }
 
     @PostMapping("/books")

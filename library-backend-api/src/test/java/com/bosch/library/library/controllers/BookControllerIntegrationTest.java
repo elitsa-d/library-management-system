@@ -1,9 +1,13 @@
 package com.bosch.library.library.controllers;
 
+import com.bosch.library.library.entities.Availability;
 import com.bosch.library.library.entities.Book;
+import com.bosch.library.library.entities.criteria.BookCriteria;
 import com.bosch.library.library.entities.dto.BookCreateDTO;
 import com.bosch.library.library.entities.dto.BookDTO;
+import com.bosch.library.library.repositories.AvailabilityRepository;
 import com.bosch.library.library.repositories.BookRepository;
+import com.bosch.library.library.repositories.specifications.BookSpecification;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.junit.After;
@@ -35,6 +39,9 @@ public class BookControllerIntegrationTest {
     private BookRepository bookRepository;
 
     @Autowired
+    private AvailabilityRepository availabilityRepository;
+
+    @Autowired
     private TestRestTemplate testRestTemplate;
     private RestTemplate restTemplate;
 
@@ -55,6 +62,8 @@ public class BookControllerIntegrationTest {
         final Book book1 = new Book(DEFAULT_TITLE, DEFAULT_AUTHOR, DEFAULT_CATEGORY);
         final Book book2 = new Book("Wuthering Heights", "Emily Brontë", "Novel");
         this.bookRepository.saveAll(List.of(book1, book2));
+
+        this.availabilityRepository.save(new Availability(null, book1, 10));
     }
 
     @After
@@ -72,7 +81,7 @@ public class BookControllerIntegrationTest {
                 requestUrl,
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<BookDTO>>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
 
@@ -83,10 +92,139 @@ public class BookControllerIntegrationTest {
         assertEquals(2, books.size());
 
         // Check that the retrieved data is right
-        final BookDTO book1 = books.get(0);
-        assertEquals(DEFAULT_TITLE, book1.getTitle());
-        assertEquals(DEFAULT_AUTHOR, book1.getAuthor());
-        assertEquals(DEFAULT_CATEGORY, book1.getCategory());
+        final BookDTO book = books.get(0);
+        assertEquals(DEFAULT_TITLE, book.getTitle());
+        assertEquals(DEFAULT_AUTHOR, book.getAuthor());
+        assertEquals(DEFAULT_CATEGORY, book.getCategory());
+    }
+
+    @Test
+    public void testGetAllBooksBySpecificCategory() {
+        // Prepare data
+        final String requestUrl = "/api/books?category=Novel";
+
+        // Perform get request
+        final ResponseEntity<List<BookDTO>> response = this.testRestTemplate.exchange(
+                requestUrl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        // Assert that status code is right and data is retrieved
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        final List<BookDTO> books = response.getBody();
+        assertNotNull(books);
+        assertEquals(2, books.size());
+
+        // Check that the retrieved data is right
+        final BookDTO book = books.get(0);
+        assertEquals(DEFAULT_TITLE, book.getTitle());
+        assertEquals(DEFAULT_AUTHOR, book.getAuthor());
+        assertEquals(DEFAULT_CATEGORY, book.getCategory());
+    }
+
+    @Test
+    public void testGetAllBooksBySpecificTitleAndAuthor() {
+        // Prepare data
+        final String requestUrl = "/api/books?title=Gone&author=Margaret";
+
+        // Perform get request
+        final ResponseEntity<List<BookDTO>> response = this.testRestTemplate.exchange(
+                requestUrl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        // Assert that status code is right and data is retrieved
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        final List<BookDTO> books = response.getBody();
+        assertNotNull(books);
+        assertEquals(1, books.size());
+
+        // Check that the retrieved data is right
+        final BookDTO book = books.get(0);
+        assertEquals(DEFAULT_TITLE, book.getTitle());
+        assertEquals(DEFAULT_AUTHOR, book.getAuthor());
+        assertEquals(DEFAULT_CATEGORY, book.getCategory());
+    }
+
+    @Test
+    public void testGetAllBooksBySpecificTitleAuthorAndCategory() {
+        // Prepare data
+        final String requestUrl = "/api/books?title=Gone&author=Margaret&category=Novel";
+
+        // Perform get request
+        final ResponseEntity<List<BookDTO>> response = this.testRestTemplate.exchange(
+                requestUrl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        // Assert that status code is right and data is retrieved
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        final List<BookDTO> books = response.getBody();
+        assertNotNull(books);
+        assertEquals(1, books.size());
+
+        // Check that the retrieved data is right
+        final BookDTO book = books.get(0);
+        assertEquals(DEFAULT_TITLE, book.getTitle());
+        assertEquals(DEFAULT_AUTHOR, book.getAuthor());
+        assertEquals(DEFAULT_CATEGORY, book.getCategory());
+    }
+
+    @Test
+    public void testGetAllBooksBySpecificTitleAuthorCategoryAndQuantity() {
+        // Prepare data
+        final String requestUrl = "/api/books?title=Gone&author=Margaret&category=Novel&quantity=10";
+
+        // Perform get request
+        final ResponseEntity<List<BookDTO>> response = this.testRestTemplate.exchange(
+                requestUrl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        // Assert that status code is right and data is retrieved
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        final List<BookDTO> books = response.getBody();
+        assertNotNull(books);
+        assertEquals(1, books.size());
+
+        // Check that the retrieved data is right
+        final BookDTO book = books.get(0);
+        assertEquals(DEFAULT_TITLE, book.getTitle());
+        assertEquals(DEFAULT_AUTHOR, book.getAuthor());
+        assertEquals(DEFAULT_CATEGORY, book.getCategory());
+    }
+
+    @Test
+    public void testGetAllBooksByInvalidQuantityReturnsEmptyList() {
+        // Prepare data
+        final String requestUrl = "/api/books?quantity=100";
+
+        // Perform get request
+        final ResponseEntity<List<BookDTO>> response = this.testRestTemplate.exchange(
+                requestUrl,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        // Assert that status code is right and the returned list is empty
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        final List<BookDTO> books = response.getBody();
+        assertNotNull(books);
+        assertEquals(0, books.size());
     }
 
     @Test
@@ -107,16 +245,17 @@ public class BookControllerIntegrationTest {
         assertNotNull(response.getBody());
 
         // Check that the data is saved
-        final Book savedBook = this.bookRepository.findBookByTitleAndAuthor(UPDATED_TITLE, UPDATED_AUTHOR);
-        assertEquals(bookCreateDTO.getTitle(), savedBook.getTitle());
-        assertEquals(bookCreateDTO.getAuthor(), savedBook.getAuthor());
-        assertEquals(bookCreateDTO.getCategory(), savedBook.getCategory());
+        final List<Book> savedBook = this.bookRepository.findAll(BookSpecification.hasCriteria(new BookCriteria(UPDATED_TITLE, UPDATED_AUTHOR, null, null)));
+        assertNotNull(savedBook);
+        assertEquals(bookCreateDTO.getTitle(), savedBook.get(0).getTitle());
+        assertEquals(bookCreateDTO.getAuthor(), savedBook.get(0).getAuthor());
+        assertEquals(bookCreateDTO.getCategory(), savedBook.get(0).getCategory());
     }
 
     @Test
     public void testEditBook() {
         // Prepare data
-        final Book book = this.bookRepository.findBookByTitleAndAuthor(DEFAULT_TITLE, DEFAULT_AUTHOR);
+        final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final BookDTO bookDTO = new BookDTO(book.getId(), UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
         final String requestUrl = "/api/books";
 
@@ -133,10 +272,11 @@ public class BookControllerIntegrationTest {
         assertNotNull(response.getBody());
 
         // Check that the data is saved
-        final Book savedBook = this.bookRepository.findBookByTitleAndAuthor(UPDATED_TITLE, UPDATED_AUTHOR);
-        assertEquals(bookDTO.getTitle(), savedBook.getTitle());
-        assertEquals(bookDTO.getAuthor(), savedBook.getAuthor());
-        assertEquals(bookDTO.getCategory(), savedBook.getCategory());
+        final List<Book> savedBook = this.bookRepository.findAll(BookSpecification.hasCriteria(new BookCriteria(UPDATED_TITLE, UPDATED_AUTHOR, null, null)));
+        assertNotNull(savedBook);
+        assertEquals(bookDTO.getTitle(), savedBook.get(0).getTitle());
+        assertEquals(bookDTO.getAuthor(), savedBook.get(0).getAuthor());
+        assertEquals(bookDTO.getCategory(), savedBook.get(0).getCategory());
     }
 
     @Test
@@ -163,7 +303,7 @@ public class BookControllerIntegrationTest {
     @Test
     public void testDeleteBook() {
         // Prepare data
-        final Book book = this.bookRepository.findBookByTitleAndAuthor(DEFAULT_TITLE, DEFAULT_AUTHOR);
+        final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final String requestUrl = String.format("/api/books/%d", book.getId());
 
         // Perform delete request

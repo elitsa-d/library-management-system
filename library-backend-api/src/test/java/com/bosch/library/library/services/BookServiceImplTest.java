@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,10 +59,10 @@ public class BookServiceImplTest {
     @Test
     void testGetAllBooksReturnsListOfAllBooksWithLengthThree() {
         // Arrange mock repository
-        Mockito.when(this.bookRepository.findAll()).thenReturn(this.bookList);
+        Mockito.when(this.bookRepository.findAll(any(Specification.class))).thenReturn(this.bookList);
 
         // Retrieve all books
-        final int result = this.bookService.getAllBooks().size();
+        final int result = this.bookService.getAllBooks(null).size();
 
         // Assert that list of returned books has length of 3
         assertEquals(3, result);
@@ -70,10 +71,10 @@ public class BookServiceImplTest {
     @Test
     void testGetAllBooksReturnsValidListOfAllBooks() {
         // Arrange mock repository
-        Mockito.when(this.bookRepository.findAll()).thenReturn(this.bookList);
+        Mockito.when(this.bookRepository.findAll(any(Specification.class))).thenReturn(this.bookList);
 
         // Retrieve all books
-        final List<BookDTO> result = this.bookService.getAllBooks();
+        final List<BookDTO> result = this.bookService.getAllBooks(null);
         final List<BookDTO> expectedResult = this.bookMapper.toDTOList(this.bookList);
 
         // Assert that the right list of books is returned
