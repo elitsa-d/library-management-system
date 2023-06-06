@@ -70,4 +70,14 @@ public class BookDTO {
     public int hashCode() {
         return Objects.hash(this.title, this.author);
     }
+
+    @Override
+    public String toString() {
+        return "BookDTO{" +
+                "id=" + this.id +
+                ", title='" + this.title + '\'' +
+                ", author='" + this.author + '\'' +
+                ", category='" + this.category + '\'' +
+                '}';
+    }
 }

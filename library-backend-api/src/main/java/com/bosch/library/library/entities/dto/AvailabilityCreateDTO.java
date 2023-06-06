@@ -2,6 +2,8 @@ package com.bosch.library.library.entities.dto;
 
 import jakarta.validation.constraints.NotNull;
 
+import java.util.Objects;
+
 public class AvailabilityCreateDTO {
     @NotNull(message = "The location id should be specified.")
     private Long locationId;
@@ -43,5 +45,31 @@ public class AvailabilityCreateDTO {
 
     public void setQuantity(final Integer quantity) {
         this.quantity = quantity;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final AvailabilityCreateDTO that = (AvailabilityCreateDTO) o;
+        return this.locationId.equals(that.locationId) && this.bookId.equals(that.bookId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.locationId, this.bookId);
+    }
+
+    @Override
+    public String toString() {
+        return "AvailabilityCreateDTO{" +
+                "locationId=" + this.locationId +
+                ", bookId=" + this.bookId +
+                ", quantity=" + this.quantity +
+                '}';
     }
 }

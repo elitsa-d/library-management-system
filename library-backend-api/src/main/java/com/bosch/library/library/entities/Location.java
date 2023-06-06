@@ -84,4 +84,14 @@ public class Location {
     public int hashCode() {
         return Objects.hash(this.address);
     }
+
+    @Override
+    public String toString() {
+        return "Location{" +
+                "id=" + this.id +
+                ", address='" + this.address + '\'' +
+                ", supplier=" + this.supplier +
+                ", availabilities=" + this.availabilities +
+                '}';
+    }
 }

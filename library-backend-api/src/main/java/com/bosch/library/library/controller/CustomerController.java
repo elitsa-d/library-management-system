@@ -7,6 +7,8 @@ import com.bosch.library.library.services.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,8 @@ import java.util.List;
 public class CustomerController {
     private final CustomerService customerService;
 
+    Logger logger = LoggerFactory.getLogger(CustomerController.class);
+
     public CustomerController(final CustomerService customerService) {
         this.customerService = customerService;
     }
@@ -34,6 +38,7 @@ public class CustomerController {
     @Operation(summary = "Get all customers", description = "This endpoint gives you a list of all customers and their book wishlist")
     @GetMapping("/customers")
     public List<CustomerDTO> getAllCustomers() {
+        this.logger.info("Get all customers");
         return this.customerService.getAllCustomers();
     }
 
@@ -47,6 +52,7 @@ public class CustomerController {
     @Operation(summary = "Create a new customer", description = "To add a customer it is required to provide first name and last name; biography is optional")
     @PostMapping("/customers")
     public CustomerDTO createCustomer(@Valid @RequestBody final CustomerCreateDTO customerCreateDTO) {
+        this.logger.info("Save a new customer based on the following information: " + customerCreateDTO.toString());
         return this.customerService.createCustomer(customerCreateDTO);
     }
 
@@ -61,9 +67,11 @@ public class CustomerController {
     @PatchMapping("/customers")
     public ResponseEntity<?> editCustomer(@RequestBody final CustomerDTO updatedCustomer) {
         try {
+            this.logger.info("Update customer based on the following information: " + updatedCustomer.toString());
             final CustomerDTO customerDTO = this.customerService.updateCustomer(updatedCustomer);
             return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
         } catch (final ElementNotFoundException e) {
+            this.logger.error("Updating customer failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
@@ -80,9 +88,11 @@ public class CustomerController {
     @PutMapping("/customers/add-to-wishlist/{customerId}/{bookId}")
     public ResponseEntity<?> addBookToWishlist(@PathVariable final Long customerId, @PathVariable final Long bookId) {
         try {
+            this.logger.info("Update customer with id " + customerId + " by adding book with id " + bookId + " to their wishlist");
             final CustomerDTO customerDTO = this.customerService.addBookToWishlist(customerId, bookId);
             return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
         } catch (final ElementNotFoundException e) {
+            this.logger.error("Adding book to customer's wishlist failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
@@ -99,9 +109,11 @@ public class CustomerController {
     @PutMapping("/customers/remove-from-wishlist/{customerId}/{bookId}")
     public ResponseEntity<?> removeBookFromWishlist(@PathVariable final Long customerId, @PathVariable final Long bookId) {
         try {
+            this.logger.info("Update customer with id " + customerId + " by removing book with id " + bookId + " from their wishlist");
             final CustomerDTO customerDTO = this.customerService.removeBookFromWishlist(customerId, bookId);
             return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
         } catch (final ElementNotFoundException e) {
+            this.logger.error("Removing book from customer's wishlist failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
@@ -117,9 +129,11 @@ public class CustomerController {
     @DeleteMapping("/customers/{id}")
     public ResponseEntity<?> deleteCustomer(@PathVariable final Long id) {
         try {
+            this.logger.info("Delete customer with id " + id);
             final Long deletedCustomerId = this.customerService.deleteCustomer(id);
             return ResponseEntity.status(HttpStatus.OK).body(deletedCustomerId);
         } catch (final ElementNotFoundException e) {
+            this.logger.error("Deleting customer failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }

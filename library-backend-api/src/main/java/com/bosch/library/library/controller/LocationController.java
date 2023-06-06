@@ -8,6 +8,8 @@ import com.bosch.library.library.services.LocationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,8 @@ import java.util.List;
 public class LocationController {
     private final LocationService locationService;
 
+    Logger logger = LoggerFactory.getLogger(LocationController.class);
+
     public LocationController(final LocationService locationService) {
         this.locationService = locationService;
     }
@@ -35,6 +39,7 @@ public class LocationController {
     @Operation(summary = "Get all locations", description = "This endpoint gives you a list of all locations")
     @GetMapping("/locations")
     public List<LocationDTO> getAllLocations() {
+        this.logger.info("Get all locations");
         return this.locationService.getAllLocations();
     }
 
@@ -49,11 +54,14 @@ public class LocationController {
     @PostMapping("/locations")
     public ResponseEntity<?> createLocation(@Valid @RequestBody final LocationCreateDTO locationCreateDTO) {
         try {
+            this.logger.info("Save a new location based on the following information: " + locationCreateDTO.toString());
             final LocationDTO locationDTO = this.locationService.createLocation(locationCreateDTO);
             return ResponseEntity.status(HttpStatus.OK).body(locationDTO);
         } catch (final ElementNotFoundException e) {
+            this.logger.error("Saving the new location failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (final ValidationException e) {
+            this.logger.error("Saving the new location failed and ValidationException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

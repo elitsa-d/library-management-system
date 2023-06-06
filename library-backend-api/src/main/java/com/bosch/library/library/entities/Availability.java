@@ -3,6 +3,8 @@ package com.bosch.library.library.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "location_book_availability")
 public class Availability {
@@ -61,5 +63,32 @@ public class Availability {
 
     public void setQuantity(final Integer quantity) {
         this.quantity = quantity;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final Availability that = (Availability) o;
+        return this.location.equals(that.location) && this.book.equals(that.book);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.location, this.book);
+    }
+
+    @Override
+    public String toString() {
+        return "Availability{" +
+                "id=" + this.id +
+                ", location=" + this.location +
+                ", book=" + this.book +
+                ", quantity=" + this.quantity +
+                '}';
     }
 }

@@ -90,4 +90,15 @@ public class Supplier {
     public int hashCode() {
         return Objects.hash(this.name);
     }
+
+    @Override
+    public String toString() {
+        return "Supplier{" +
+                "id=" + this.id +
+                ", name='" + this.name + '\'' +
+                ", type='" + this.type + '\'' +
+                ", locations=" + this.locations +
+                ", rents=" + this.rents +
+                '}';
+    }
 }

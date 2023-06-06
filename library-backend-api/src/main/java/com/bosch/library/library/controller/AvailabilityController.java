@@ -10,6 +10,8 @@ import com.bosch.library.library.services.AvailabilityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,8 @@ import java.util.List;
 public class AvailabilityController {
     private final AvailabilityService availabilityService;
 
+    Logger logger = LoggerFactory.getLogger(AvailabilityController.class);
+
     public AvailabilityController(final AvailabilityService availabilityService) {
         this.availabilityService = availabilityService;
     }
@@ -38,6 +42,7 @@ public class AvailabilityController {
     @Operation(summary = "Get all available books in a given location", description = "Provide a location id to get a list of all books available in it and their current quantity")
     @GetMapping("/availability/books-in-location/{id}")
     public List<AvailabilityByLocationDTO> getAvailableBooksInLocation(@PathVariable final Long id) {
+        this.logger.info("Get all books available in the location with id " + id);
         return this.availabilityService.getAvailableBooksInLocation(id);
     }
 
@@ -50,6 +55,7 @@ public class AvailabilityController {
     @Operation(summary = "Get all locations that have a given book", description = "Provide a book id to get a list of the locations in which it is available and in what quantity")
     @GetMapping("/availability/locations-having-book/{id}")
     public List<AvailabilityByBookDTO> getLocationsWithAvailableBook(@PathVariable final Long id) {
+        this.logger.info("Get all locations that have available the book with id " + id);
         return this.availabilityService.getLocationsWithAvailableBook(id);
     }
 
@@ -64,11 +70,14 @@ public class AvailabilityController {
     @PostMapping("/availability")
     public ResponseEntity<?> addBookToLocation(@Valid @RequestBody final AvailabilityCreateDTO newAvailability) {
         try {
+            this.logger.info("Create new book availability based on the following information: " + newAvailability.toString());
             final AvailabilityDTO availabilityDTO = this.availabilityService.addBookToLocation(newAvailability);
             return ResponseEntity.status(HttpStatus.OK).body(availabilityDTO);
         } catch (final ElementNotFoundException e) {
+            this.logger.error("Creating the new availability failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (final ValidationException e) {
+            this.logger.error("Creating the new availability failed and ValidationException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
@@ -84,11 +93,14 @@ public class AvailabilityController {
     @PutMapping("/availability")
     public ResponseEntity<?> changeBookQuantity(@Valid @RequestBody final AvailabilityCreateDTO updatedAvailability) {
         try {
+            this.logger.info("Update book availability based on the following information: " + updatedAvailability.toString());
             final AvailabilityDTO availabilityDTO = this.availabilityService.changeBookQuantity(updatedAvailability);
             return ResponseEntity.status(HttpStatus.OK).body(availabilityDTO);
         } catch (final ElementNotFoundException e) {
+            this.logger.error("Updating availability failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (final ValidationException e) {
+            this.logger.error("Updating availability failed and ValidationException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
@@ -105,9 +117,11 @@ public class AvailabilityController {
     @DeleteMapping("/availability/location/{locationId}/book/{bookId}")
     public ResponseEntity<?> removeBookAvailabilityFromLocation(@PathVariable final Long locationId, @PathVariable final Long bookId) {
         try {
+            this.logger.info("Make book with id " + bookId + " unavailable in location with id " + locationId);
             final Long removedBookId = this.availabilityService.removeBookAvailabilityFromLocation(locationId, bookId);
             return ResponseEntity.status(HttpStatus.OK).body(removedBookId);
         } catch (final ElementNotFoundException e) {
+            this.logger.error("Making the given book unavailable failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }

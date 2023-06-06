@@ -8,6 +8,8 @@ import com.bosch.library.library.services.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,8 @@ import java.util.List;
 public class BookController {
     private final BookService bookService;
 
+    Logger logger = LoggerFactory.getLogger(BookController.class);
+
     public BookController(final BookService bookService) {
         this.bookService = bookService;
     }
@@ -37,6 +41,7 @@ public class BookController {
     @Operation(summary = "Get books", description = "Provide criteria to get books by specific characteristics or provide no criteria to get all books")
     @GetMapping("/books")
     public List<BookDTO> getAllBooks(@ModelAttribute final BookCriteria bookCriteria) {
+        this.logger.info("Get all books by the following criteria: " + bookCriteria.toString());
         return this.bookService.getAllBooks(bookCriteria);
     }
 
@@ -49,6 +54,7 @@ public class BookController {
     @Operation(summary = "Add a new book", description = "Add a book by providing information about its title, author and category")
     @PostMapping("/books")
     public BookDTO createBook(@Valid @RequestBody final BookCreateDTO bookCreateDTO) {
+        this.logger.info("Save a new book based on the following information: " + bookCreateDTO.toString());
         return this.bookService.createBook(bookCreateDTO);
     }
 
@@ -63,9 +69,11 @@ public class BookController {
     @PatchMapping("/books")
     public ResponseEntity<?> editBook(@RequestBody final BookDTO updatedBook) {
         try {
+            this.logger.info("Update book based on the following information: " + updatedBook.toString());
             final BookDTO bookDTO = this.bookService.updateBook(updatedBook);
             return ResponseEntity.status(HttpStatus.OK).body(bookDTO);
         } catch (final ElementNotFoundException e) {
+            this.logger.error("Updating book failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
@@ -81,9 +89,11 @@ public class BookController {
     @DeleteMapping("/books/{id}")
     public ResponseEntity<?> deleteBook(@PathVariable final Long id) {
         try {
+            this.logger.info("Delete book with id " + id);
             final Long deletedBookId = this.bookService.deleteBook(id);
             return ResponseEntity.status(HttpStatus.OK).body(deletedBookId);
         } catch (final ElementNotFoundException e) {
+            this.logger.error("Deleting book failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }

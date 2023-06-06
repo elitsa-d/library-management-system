@@ -112,5 +112,18 @@ public class Book {
     public int hashCode() {
         return Objects.hash(this.title, this.author);
     }
+
+    @Override
+    public String toString() {
+        return "Book{" +
+                "id=" + this.id +
+                ", title='" + this.title + '\'' +
+                ", author='" + this.author + '\'' +
+                ", category='" + this.category + '\'' +
+                ", timesRented=" + this.timesRented +
+                ", availabilities=" + this.availabilities +
+                ", wishedBy=" + this.wishedBy +
+                '}';
+    }
 }
 

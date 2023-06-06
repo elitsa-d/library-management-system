@@ -2,6 +2,8 @@ package com.bosch.library.library.entities.dto;
 
 import jakarta.validation.constraints.NotNull;
 
+import java.util.Objects;
+
 public class BookCreateDTO {
 
     @NotNull(message = "The book's title should be specified.")
@@ -44,5 +46,31 @@ public class BookCreateDTO {
 
     public void setCategory(final String category) {
         this.category = category;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final BookCreateDTO that = (BookCreateDTO) o;
+        return this.title.equals(that.title) && this.author.equals(that.author);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.title, this.author);
+    }
+
+    @Override
+    public String toString() {
+        return "BookCreateDTO{" +
+                "title='" + this.title + '\'' +
+                ", author='" + this.author + '\'' +
+                ", category='" + this.category + '\'' +
+                '}';
     }
 }

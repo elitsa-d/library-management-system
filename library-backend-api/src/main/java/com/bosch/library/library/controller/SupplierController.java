@@ -8,6 +8,8 @@ import com.bosch.library.library.services.SupplierService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,8 @@ import java.util.List;
 public class SupplierController {
     private final SupplierService supplierService;
 
+    Logger logger = LoggerFactory.getLogger(SupplierController.class);
+
     public SupplierController(final SupplierService supplierService) {
         this.supplierService = supplierService;
     }
@@ -35,6 +39,7 @@ public class SupplierController {
     @Operation(summary = "Get all suppliers", description = "This endpoint gives you a list of all suppliers and the locations they own")
     @GetMapping("/suppliers")
     public List<SupplierDTO> getAllSuppliers() {
+        this.logger.info("Get all suppliers");
         return this.supplierService.getAllSuppliers();
     }
 
@@ -49,9 +54,11 @@ public class SupplierController {
     @PostMapping("/suppliers")
     public ResponseEntity<?> createSupplier(@Valid @RequestBody final SupplierCreateDTO supplierCreateDTO) {
         try {
+            this.logger.info("Save a new supplier based on the following information: " + supplierCreateDTO.toString());
             final SupplierDTO supplierDTO = this.supplierService.createSupplier(supplierCreateDTO);
             return ResponseEntity.status(HttpStatus.OK).body(supplierDTO);
         } catch (final ValidationException e) {
+            this.logger.error("Saving the new supplier failed and ValidationException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
@@ -68,9 +75,11 @@ public class SupplierController {
     @PutMapping("/suppliers/add-location/{supplierId}/{locationId}")
     public ResponseEntity<?> addNewLocation(@PathVariable final Long supplierId, @PathVariable final Long locationId) {
         try {
+            this.logger.info("Add location with id " + locationId + " to supplier with id " + supplierId);
             final SupplierDTO supplierDTO = this.supplierService.addNewLocation(supplierId, locationId);
             return ResponseEntity.ok(supplierDTO);
         } catch (final ElementNotFoundException e) {
+            this.logger.error("Adding the new location failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }

@@ -9,6 +9,8 @@ import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.exceptions.ValidationException;
 import com.bosch.library.library.repositories.LocationRepository;
 import com.bosch.library.library.repositories.SupplierRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +24,8 @@ public class LocationServiceImpl implements LocationService {
     private final LocationMapper locationMapper;
 
     private final LocationCreateMapper locationCreateMapper;
+
+    Logger logger = LoggerFactory.getLogger(LocationServiceImpl.class);
 
     public LocationServiceImpl(
             final LocationRepository locationRepository,
@@ -42,6 +46,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public LocationDTO createLocation(final LocationCreateDTO locationCreateDTO) throws ValidationException, ElementNotFoundException {
+        final long startTime = System.nanoTime();
         final Long supplierId = locationCreateDTO.getSupplierId();
         this.supplierRepository.findById(supplierId)
                 .orElseThrow(() -> new ElementNotFoundException("Supplier with id " + supplierId + " doesn't exist."));
@@ -50,6 +55,10 @@ public class LocationServiceImpl implements LocationService {
 
         if (location == null) {
             location = this.locationCreateMapper.toEntity(locationCreateDTO);
+
+            final long stopTime = System.nanoTime();
+            final long elapsedTime = stopTime - startTime;
+            this.logger.debug("It took " + elapsedTime + " milliseconds for creating a new location");
             return this.locationMapper.toDTO(this.locationRepository.save(location));
         } else {
             throw new ValidationException("Supplier with id " + supplierId + " already has this location.");

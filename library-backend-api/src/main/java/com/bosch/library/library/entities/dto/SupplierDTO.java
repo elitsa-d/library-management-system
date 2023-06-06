@@ -68,4 +68,14 @@ public class SupplierDTO {
     public int hashCode() {
         return Objects.hash(this.name);
     }
+
+    @Override
+    public String toString() {
+        return "SupplierDTO{" +
+                "id=" + this.id +
+                ", name='" + this.name + '\'' +
+                ", type='" + this.type + '\'' +
+                ", locationDTOList=" + this.locationDTOList +
+                '}';
+    }
 }

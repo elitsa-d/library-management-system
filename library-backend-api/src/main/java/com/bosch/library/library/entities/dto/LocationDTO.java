@@ -46,4 +46,12 @@ public class LocationDTO {
     public int hashCode() {
         return Objects.hash(this.address);
     }
+
+    @Override
+    public String toString() {
+        return "LocationDTO{" +
+                "id=" + this.id +
+                ", address='" + this.address + '\'' +
+                '}';
+    }
 }
