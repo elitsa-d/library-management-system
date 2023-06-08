@@ -10,6 +10,7 @@ import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.BookRepository;
 import com.bosch.library.library.repositories.CustomerRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,17 +33,20 @@ public class CustomerServiceImpl implements CustomerService {
         this.customerCreateMapper = customerCreateMapper;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CustomerDTO> getAllCustomers() {
         return this.customerMapper.toDTOList(this.customerRepository.findAll());
     }
 
+    @Transactional
     @Override
     public CustomerDTO createCustomer(final CustomerCreateDTO customerCreateDTO) {
         final Customer customer = this.customerCreateMapper.toEntity(customerCreateDTO);
         return this.customerMapper.toDTO(this.customerRepository.save(customer));
     }
 
+    @Transactional
     @Override
     public CustomerDTO updateCustomer(final CustomerDTO updatedCustomer) throws ElementNotFoundException {
         final Long id = updatedCustomer.getId();
@@ -65,6 +69,7 @@ public class CustomerServiceImpl implements CustomerService {
         return this.customerMapper.toDTO(this.customerRepository.save(customer));
     }
 
+    @Transactional
     @Override
     public CustomerDTO addBookToWishlist(final Long customerId, final Long bookId) throws ElementNotFoundException {
         final Customer customer = this.customerRepository.findById(customerId)
@@ -80,6 +85,7 @@ public class CustomerServiceImpl implements CustomerService {
         return this.customerMapper.toDTO(this.customerRepository.save(customer));
     }
 
+    @Transactional
     @Override
     public CustomerDTO removeBookFromWishlist(final Long customerId, final Long bookId) throws ElementNotFoundException {
         final Customer customer = this.customerRepository.findById(customerId)
@@ -92,6 +98,7 @@ public class CustomerServiceImpl implements CustomerService {
         return this.customerMapper.toDTO(this.customerRepository.save(customer));
     }
 
+    @Transactional
     @Override
     public Long deleteCustomer(final Long id) throws ElementNotFoundException {
         final Customer customer = this.customerRepository.findById(id)

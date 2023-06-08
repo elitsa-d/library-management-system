@@ -16,6 +16,7 @@ import com.bosch.library.library.repositories.AvailabilityRepository;
 import com.bosch.library.library.repositories.BookRepository;
 import com.bosch.library.library.repositories.LocationRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -44,16 +45,19 @@ public class AvailabilityServiceImpl implements AvailabilityService {
         this.availabilityMapper = availabilityMapper;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<AvailabilityByLocationDTO> getAvailableBooksInLocation(final Long id) {
         return this.availabilityByLocationMapper.toDTOList(this.availabilityRepository.findAllByLocationId(id));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<AvailabilityByBookDTO> getLocationsWithAvailableBook(final Long id) {
         return this.availabilityByBookMapper.toDTOList(this.availabilityRepository.findAllByBookId(id));
     }
 
+    @Transactional
     @Override
     public AvailabilityDTO addBookToLocation(final AvailabilityCreateDTO newAvailability) throws ElementNotFoundException, ValidationException {
         final Long locationId = newAvailability.getLocationId();
@@ -79,6 +83,7 @@ public class AvailabilityServiceImpl implements AvailabilityService {
         return this.availabilityMapper.toDTO(availability);
     }
 
+    @Transactional
     @Override
     public AvailabilityDTO changeBookQuantity(final AvailabilityCreateDTO updatedAvailability) throws ValidationException, ElementNotFoundException {
         final Long locationId = updatedAvailability.getLocationId();
@@ -100,6 +105,7 @@ public class AvailabilityServiceImpl implements AvailabilityService {
         return this.availabilityMapper.toDTO(this.availabilityRepository.save(availability));
     }
 
+    @Transactional
     @Override
     public Long removeBookAvailabilityFromLocation(final Long locationId, final Long bookId) throws ElementNotFoundException {
         final Availability availability = this.availabilityRepository.findByLocationIdAndBookId(locationId, bookId);

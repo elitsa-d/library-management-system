@@ -11,6 +11,7 @@ import com.bosch.library.library.exceptions.ValidationException;
 import com.bosch.library.library.repositories.LocationRepository;
 import com.bosch.library.library.repositories.SupplierRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -34,11 +35,13 @@ public class SupplierServiceImpl implements SupplierService {
         this.supplierCreateMapper = supplierCreateMapper;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<SupplierDTO> getAllSuppliers() {
         return this.supplierMapper.toDTOList(this.supplierRepository.findAll());
     }
 
+    @Transactional
     @Override
     public SupplierDTO createSupplier(final SupplierCreateDTO supplierCreateDTO) throws ValidationException {
         final String supplierName = supplierCreateDTO.getName();
@@ -61,6 +64,7 @@ public class SupplierServiceImpl implements SupplierService {
         }
     }
 
+    @Transactional
     @Override
     public SupplierDTO addNewLocation(final Long supplierId, final Long locationId) throws ElementNotFoundException {
         final Supplier supplier = this.supplierRepository.findById(supplierId)

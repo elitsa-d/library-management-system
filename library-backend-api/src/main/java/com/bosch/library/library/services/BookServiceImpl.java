@@ -11,6 +11,7 @@ import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.BookRepository;
 import com.bosch.library.library.repositories.specifications.BookSpecification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,18 +29,21 @@ public class BookServiceImpl implements BookService {
         this.bookMapper = bookMapper;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookDTO> getAllBooks(final BookCriteria bookCriteria) {
         final List<Book> books = this.bookRepository.findAll(BookSpecification.hasCriteria(bookCriteria));
         return this.bookMapper.toDTOList(books);
     }
 
+    @Transactional
     @Override
     public BookDTO createBook(final BookCreateDTO bookCreateDTO) {
         final Book book = this.bookCreateMapper.toEntity(bookCreateDTO);
         return this.bookMapper.toDTO(this.bookRepository.save(book));
     }
 
+    @Transactional
     @Override
     public BookDTO updateBook(final BookDTO updatedBook) throws ElementNotFoundException {
         final Long id = updatedBook.getId();
@@ -62,6 +66,7 @@ public class BookServiceImpl implements BookService {
         return this.bookMapper.toDTO(this.bookRepository.save(book));
     }
 
+    @Transactional
     @Override
     public Long deleteBook(final Long id) throws ElementNotFoundException {
         final Book book = this.bookRepository.findById(id)

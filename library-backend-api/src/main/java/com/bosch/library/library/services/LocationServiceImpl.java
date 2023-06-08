@@ -12,6 +12,7 @@ import com.bosch.library.library.repositories.SupplierRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -39,11 +40,13 @@ public class LocationServiceImpl implements LocationService {
         this.locationCreateMapper = locationCreateMapper;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<LocationDTO> getAllLocations() {
         return this.locationMapper.toDTOList(this.locationRepository.findAll());
     }
 
+    @Transactional
     @Override
     public LocationDTO createLocation(final LocationCreateDTO locationCreateDTO) throws ValidationException, ElementNotFoundException {
         final long startTime = System.nanoTime();
