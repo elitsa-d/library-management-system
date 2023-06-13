@@ -1,11 +1,11 @@
 package com.bosch.library.library.services;
 
+import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
 import com.bosch.library.library.entities.Book;
 import com.bosch.library.library.entities.dto.BookCreateDTO;
 import com.bosch.library.library.entities.dto.BookDTO;
 import com.bosch.library.library.entities.mappers.BookCreateMapper;
 import com.bosch.library.library.entities.mappers.BookMapper;
-import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,9 +1,9 @@
-package com.bosch.library.library.controller;
+package com.bosch.library.library.controllers;
 
+import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
+import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
 import com.bosch.library.library.entities.dto.SupplierCreateDTO;
 import com.bosch.library.library.entities.dto.SupplierDTO;
-import com.bosch.library.library.exceptions.ElementNotFoundException;
-import com.bosch.library.library.exceptions.ValidationException;
 import com.bosch.library.library.services.SupplierService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,15 +52,10 @@ public class SupplierController {
      */
     @Operation(summary = "Create a new supplier", description = "To add a supplier it is required to provide the supplier's name and type; providing a list of owned locations is optional")
     @PostMapping("/suppliers")
-    public ResponseEntity<?> createSupplier(@Valid @RequestBody final SupplierCreateDTO supplierCreateDTO) {
-        try {
-            this.logger.info("Save a new supplier based on the following information: " + supplierCreateDTO.toString());
-            final SupplierDTO supplierDTO = this.supplierService.createSupplier(supplierCreateDTO);
-            return ResponseEntity.status(HttpStatus.OK).body(supplierDTO);
-        } catch (final ValidationException e) {
-            this.logger.error("Saving the new supplier failed and ValidationException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<SupplierDTO> createSupplier(@Valid @RequestBody final SupplierCreateDTO supplierCreateDTO) throws ValidationException {
+        this.logger.info("Save a new supplier based on the following information: " + supplierCreateDTO.toString());
+        final SupplierDTO supplierDTO = this.supplierService.createSupplier(supplierCreateDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(supplierDTO);
     }
 
     /**
@@ -73,14 +68,9 @@ public class SupplierController {
      */
     @Operation(summary = "Change the supplier who owns a given location", description = "Provide supplier id and location id to change the supplier who owns the given location")
     @PutMapping("/suppliers/add-location/{supplierId}/{locationId}")
-    public ResponseEntity<?> addNewLocation(@PathVariable final Long supplierId, @PathVariable final Long locationId) {
-        try {
-            this.logger.info("Add location with id " + locationId + " to supplier with id " + supplierId);
-            final SupplierDTO supplierDTO = this.supplierService.addNewLocation(supplierId, locationId);
-            return ResponseEntity.ok(supplierDTO);
-        } catch (final ElementNotFoundException e) {
-            this.logger.error("Adding the new location failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<SupplierDTO> addNewLocation(@PathVariable final Long supplierId, @PathVariable final Long locationId) throws ElementNotFoundException {
+        this.logger.info("Add location with id " + locationId + " to supplier with id " + supplierId);
+        final SupplierDTO supplierDTO = this.supplierService.addNewLocation(supplierId, locationId);
+        return ResponseEntity.ok(supplierDTO);
     }
 }

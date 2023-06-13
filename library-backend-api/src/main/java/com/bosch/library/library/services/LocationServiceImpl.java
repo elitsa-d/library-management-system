@@ -1,12 +1,12 @@
 package com.bosch.library.library.services;
 
+import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
+import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
 import com.bosch.library.library.entities.Location;
 import com.bosch.library.library.entities.dto.LocationCreateDTO;
 import com.bosch.library.library.entities.dto.LocationDTO;
 import com.bosch.library.library.entities.mappers.LocationCreateMapper;
 import com.bosch.library.library.entities.mappers.LocationMapper;
-import com.bosch.library.library.exceptions.ElementNotFoundException;
-import com.bosch.library.library.exceptions.ValidationException;
 import com.bosch.library.library.repositories.LocationRepository;
 import com.bosch.library.library.repositories.SupplierRepository;
 import org.slf4j.Logger;

@@ -1,5 +1,8 @@
 package com.bosch.library.library.services;
 
+import com.bosch.library.library.clients.BookGeneratorClient;
+import com.bosch.library.library.controllers.errors.exceptions.ApiUnavailableException;
+import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
 import com.bosch.library.library.entities.Book;
 import com.bosch.library.library.entities.Customer;
 import com.bosch.library.library.entities.criteria.BookCriteria;
@@ -7,7 +10,6 @@ import com.bosch.library.library.entities.dto.BookCreateDTO;
 import com.bosch.library.library.entities.dto.BookDTO;
 import com.bosch.library.library.entities.mappers.BookCreateMapper;
 import com.bosch.library.library.entities.mappers.BookMapper;
-import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.repositories.BookRepository;
 import com.bosch.library.library.repositories.specifications.BookSpecification;
 import org.springframework.stereotype.Service;
@@ -23,10 +25,13 @@ public class BookServiceImpl implements BookService {
 
     private final BookMapper bookMapper;
 
-    public BookServiceImpl(final BookRepository bookRepository, final BookCreateMapper bookCreateMapper, final BookMapper bookMapper) {
+    private final BookGeneratorClient bookGeneratorClient;
+
+    public BookServiceImpl(final BookRepository bookRepository, final BookCreateMapper bookCreateMapper, final BookMapper bookMapper, final BookGeneratorClient bookGeneratorClient) {
         this.bookRepository = bookRepository;
         this.bookCreateMapper = bookCreateMapper;
         this.bookMapper = bookMapper;
+        this.bookGeneratorClient = bookGeneratorClient;
     }
 
     @Transactional(readOnly = true)
@@ -34,6 +39,13 @@ public class BookServiceImpl implements BookService {
     public List<BookDTO> getAllBooks(final BookCriteria bookCriteria) {
         final List<Book> books = this.bookRepository.findAll(BookSpecification.hasCriteria(bookCriteria));
         return this.bookMapper.toDTOList(books);
+    }
+
+    @Transactional
+    @Override
+    public BookDTO generateBook() throws ApiUnavailableException {
+        final BookCreateDTO bookCreateDTO = this.bookCreateMapper.toDTO(this.bookGeneratorClient.getGeneratedBook());
+        return this.createBook(bookCreateDTO);
     }
 
     @Transactional

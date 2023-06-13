@@ -1,9 +1,10 @@
-package com.bosch.library.library.controller;
+package com.bosch.library.library.controllers;
 
+import com.bosch.library.library.controllers.errors.exceptions.ApiUnavailableException;
+import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
 import com.bosch.library.library.entities.criteria.BookCriteria;
 import com.bosch.library.library.entities.dto.BookCreateDTO;
 import com.bosch.library.library.entities.dto.BookDTO;
-import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.services.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,6 +47,20 @@ public class BookController {
     }
 
     /**
+     * Endpoint with POST mapping. Generates a fake book that is persisted in database.
+     *
+     * @return response entity with the book DTO
+     * or error message when the API generating books is unavailable
+     */
+    @Operation(summary = "Generate a book", description = "This endpoint gives you a book object that is generated with fake data")
+    @PostMapping("/books/generate")
+    public ResponseEntity<BookDTO> generateBook() throws ApiUnavailableException {
+        this.logger.info("Generate a book with fake properties");
+        final BookDTO bookDTO = this.bookService.generateBook();
+        return ResponseEntity.status(HttpStatus.OK).body(bookDTO);
+    }
+
+    /**
      * Endpoint with POST mapping. Creates a new book using the information from the request body.
      *
      * @param bookCreateDTO the information for the book to be created, provided in a BookCreateDTO object
@@ -67,15 +82,10 @@ public class BookController {
      */
     @Operation(summary = "Edit an existing book", description = "Provide the id of the book to be edited and only the information that needs to be updated")
     @PatchMapping("/books")
-    public ResponseEntity<?> editBook(@RequestBody final BookDTO updatedBook) {
-        try {
-            this.logger.info("Update book based on the following information: " + updatedBook.toString());
-            final BookDTO bookDTO = this.bookService.updateBook(updatedBook);
-            return ResponseEntity.status(HttpStatus.OK).body(bookDTO);
-        } catch (final ElementNotFoundException e) {
-            this.logger.error("Updating book failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<BookDTO> editBook(@RequestBody final BookDTO updatedBook) throws ElementNotFoundException {
+        this.logger.info("Update book based on the following information: " + updatedBook.toString());
+        final BookDTO bookDTO = this.bookService.updateBook(updatedBook);
+        return ResponseEntity.status(HttpStatus.OK).body(bookDTO);
     }
 
     /**
@@ -87,14 +97,9 @@ public class BookController {
      */
     @Operation(summary = "Delete a book", description = "Provide the id of the book that should be removed")
     @DeleteMapping("/books/{id}")
-    public ResponseEntity<?> deleteBook(@PathVariable final Long id) {
-        try {
-            this.logger.info("Delete book with id " + id);
-            final Long deletedBookId = this.bookService.deleteBook(id);
-            return ResponseEntity.status(HttpStatus.OK).body(deletedBookId);
-        } catch (final ElementNotFoundException e) {
-            this.logger.error("Deleting book failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<Long> deleteBook(@PathVariable final Long id) throws ElementNotFoundException {
+        this.logger.info("Delete book with id " + id);
+        final Long deletedBookId = this.bookService.deleteBook(id);
+        return ResponseEntity.status(HttpStatus.OK).body(deletedBookId);
     }
 }

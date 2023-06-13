@@ -1,11 +1,11 @@
-package com.bosch.library.library.controller;
+package com.bosch.library.library.controllers;
 
+import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
+import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
 import com.bosch.library.library.entities.dto.AvailabilityByBookDTO;
 import com.bosch.library.library.entities.dto.AvailabilityByLocationDTO;
 import com.bosch.library.library.entities.dto.AvailabilityCreateDTO;
 import com.bosch.library.library.entities.dto.AvailabilityDTO;
-import com.bosch.library.library.exceptions.ElementNotFoundException;
-import com.bosch.library.library.exceptions.ValidationException;
 import com.bosch.library.library.services.AvailabilityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -68,18 +68,10 @@ public class AvailabilityController {
      */
     @Operation(summary = "Make a book available in a certain location", description = "Provide book id, location id and quantity to make the given book available in the specified location")
     @PostMapping("/availability")
-    public ResponseEntity<?> addBookToLocation(@Valid @RequestBody final AvailabilityCreateDTO newAvailability) {
-        try {
-            this.logger.info("Create new book availability based on the following information: " + newAvailability.toString());
-            final AvailabilityDTO availabilityDTO = this.availabilityService.addBookToLocation(newAvailability);
-            return ResponseEntity.status(HttpStatus.OK).body(availabilityDTO);
-        } catch (final ElementNotFoundException e) {
-            this.logger.error("Creating the new availability failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (final ValidationException e) {
-            this.logger.error("Creating the new availability failed and ValidationException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<AvailabilityDTO> addBookToLocation(@Valid @RequestBody final AvailabilityCreateDTO newAvailability) throws ValidationException, ElementNotFoundException {
+        this.logger.info("Create new book availability based on the following information: " + newAvailability.toString());
+        final AvailabilityDTO availabilityDTO = this.availabilityService.addBookToLocation(newAvailability);
+        return ResponseEntity.status(HttpStatus.OK).body(availabilityDTO);
     }
 
     /**
@@ -91,18 +83,10 @@ public class AvailabilityController {
      */
     @Operation(summary = "Change the quantity of an available book in a given location", description = "Provide book id, location id and the new quantity to change number of available books in the specified location")
     @PutMapping("/availability")
-    public ResponseEntity<?> changeBookQuantity(@Valid @RequestBody final AvailabilityCreateDTO updatedAvailability) {
-        try {
-            this.logger.info("Update book availability based on the following information: " + updatedAvailability.toString());
-            final AvailabilityDTO availabilityDTO = this.availabilityService.changeBookQuantity(updatedAvailability);
-            return ResponseEntity.status(HttpStatus.OK).body(availabilityDTO);
-        } catch (final ElementNotFoundException e) {
-            this.logger.error("Updating availability failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (final ValidationException e) {
-            this.logger.error("Updating availability failed and ValidationException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<AvailabilityDTO> changeBookQuantity(@Valid @RequestBody final AvailabilityCreateDTO updatedAvailability) throws ValidationException, ElementNotFoundException {
+        this.logger.info("Update book availability based on the following information: " + updatedAvailability.toString());
+        final AvailabilityDTO availabilityDTO = this.availabilityService.changeBookQuantity(updatedAvailability);
+        return ResponseEntity.status(HttpStatus.OK).body(availabilityDTO);
     }
 
     /**
@@ -115,14 +99,9 @@ public class AvailabilityController {
      */
     @Operation(summary = "Make a book unavailable in a certain location", description = "Provide location id and book id to make the given book unavailable in the specified location")
     @DeleteMapping("/availability/location/{locationId}/book/{bookId}")
-    public ResponseEntity<?> removeBookAvailabilityFromLocation(@PathVariable final Long locationId, @PathVariable final Long bookId) {
-        try {
-            this.logger.info("Make book with id " + bookId + " unavailable in location with id " + locationId);
-            final Long removedBookId = this.availabilityService.removeBookAvailabilityFromLocation(locationId, bookId);
-            return ResponseEntity.status(HttpStatus.OK).body(removedBookId);
-        } catch (final ElementNotFoundException e) {
-            this.logger.error("Making the given book unavailable failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<Long> removeBookAvailabilityFromLocation(@PathVariable final Long locationId, @PathVariable final Long bookId) throws ElementNotFoundException {
+        this.logger.info("Make book with id " + bookId + " unavailable in location with id " + locationId);
+        final Long removedBookId = this.availabilityService.removeBookAvailabilityFromLocation(locationId, bookId);
+        return ResponseEntity.status(HttpStatus.OK).body(removedBookId);
     }
 }

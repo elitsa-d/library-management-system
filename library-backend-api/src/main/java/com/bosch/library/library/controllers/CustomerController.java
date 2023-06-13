@@ -1,8 +1,8 @@
-package com.bosch.library.library.controller;
+package com.bosch.library.library.controllers;
 
+import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
 import com.bosch.library.library.entities.dto.CustomerCreateDTO;
 import com.bosch.library.library.entities.dto.CustomerDTO;
-import com.bosch.library.library.exceptions.ElementNotFoundException;
 import com.bosch.library.library.services.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -65,15 +65,10 @@ public class CustomerController {
      */
     @Operation(summary = "Edit an existing customer", description = "Provide the id of the customer to be edited and only the information that needs to be updated")
     @PatchMapping("/customers")
-    public ResponseEntity<?> editCustomer(@RequestBody final CustomerDTO updatedCustomer) {
-        try {
-            this.logger.info("Update customer based on the following information: " + updatedCustomer.toString());
-            final CustomerDTO customerDTO = this.customerService.updateCustomer(updatedCustomer);
-            return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
-        } catch (final ElementNotFoundException e) {
-            this.logger.error("Updating customer failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<CustomerDTO> editCustomer(@RequestBody final CustomerDTO updatedCustomer) throws ElementNotFoundException {
+        this.logger.info("Update customer based on the following information: " + updatedCustomer.toString());
+        final CustomerDTO customerDTO = this.customerService.updateCustomer(updatedCustomer);
+        return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
     }
 
     /**
@@ -86,15 +81,10 @@ public class CustomerController {
      */
     @Operation(summary = "Add a book to the customer's wishlist", description = "Provide id of the customer and id of the book")
     @PutMapping("/customers/add-to-wishlist/{customerId}/{bookId}")
-    public ResponseEntity<?> addBookToWishlist(@PathVariable final Long customerId, @PathVariable final Long bookId) {
-        try {
-            this.logger.info("Update customer with id " + customerId + " by adding book with id " + bookId + " to their wishlist");
-            final CustomerDTO customerDTO = this.customerService.addBookToWishlist(customerId, bookId);
-            return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
-        } catch (final ElementNotFoundException e) {
-            this.logger.error("Adding book to customer's wishlist failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<CustomerDTO> addBookToWishlist(@PathVariable final Long customerId, @PathVariable final Long bookId) throws ElementNotFoundException {
+        this.logger.info("Update customer with id " + customerId + " by adding book with id " + bookId + " to their wishlist");
+        final CustomerDTO customerDTO = this.customerService.addBookToWishlist(customerId, bookId);
+        return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
     }
 
     /**
@@ -107,15 +97,10 @@ public class CustomerController {
      */
     @Operation(summary = "Remove a book from the customer's wishlist", description = "Provide id of the customer and id of the book")
     @PutMapping("/customers/remove-from-wishlist/{customerId}/{bookId}")
-    public ResponseEntity<?> removeBookFromWishlist(@PathVariable final Long customerId, @PathVariable final Long bookId) {
-        try {
-            this.logger.info("Update customer with id " + customerId + " by removing book with id " + bookId + " from their wishlist");
-            final CustomerDTO customerDTO = this.customerService.removeBookFromWishlist(customerId, bookId);
-            return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
-        } catch (final ElementNotFoundException e) {
-            this.logger.error("Removing book from customer's wishlist failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<CustomerDTO> removeBookFromWishlist(@PathVariable final Long customerId, @PathVariable final Long bookId) throws ElementNotFoundException {
+        this.logger.info("Update customer with id " + customerId + " by removing book with id " + bookId + " from their wishlist");
+        final CustomerDTO customerDTO = this.customerService.removeBookFromWishlist(customerId, bookId);
+        return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
     }
 
     /**
@@ -127,14 +112,9 @@ public class CustomerController {
      */
     @Operation(summary = "Delete a customer", description = "Provide the id of the customer that should be removed")
     @DeleteMapping("/customers/{id}")
-    public ResponseEntity<?> deleteCustomer(@PathVariable final Long id) {
-        try {
-            this.logger.info("Delete customer with id " + id);
-            final Long deletedCustomerId = this.customerService.deleteCustomer(id);
-            return ResponseEntity.status(HttpStatus.OK).body(deletedCustomerId);
-        } catch (final ElementNotFoundException e) {
-            this.logger.error("Deleting customer failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<Long> deleteCustomer(@PathVariable final Long id) throws ElementNotFoundException {
+        this.logger.info("Delete customer with id " + id);
+        final Long deletedCustomerId = this.customerService.deleteCustomer(id);
+        return ResponseEntity.status(HttpStatus.OK).body(deletedCustomerId);
     }
 }

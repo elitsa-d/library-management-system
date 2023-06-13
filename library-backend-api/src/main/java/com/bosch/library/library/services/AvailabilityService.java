@@ -1,11 +1,11 @@
 package com.bosch.library.library.services;
 
+import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
+import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
 import com.bosch.library.library.entities.dto.AvailabilityByBookDTO;
 import com.bosch.library.library.entities.dto.AvailabilityByLocationDTO;
 import com.bosch.library.library.entities.dto.AvailabilityCreateDTO;
 import com.bosch.library.library.entities.dto.AvailabilityDTO;
-import com.bosch.library.library.exceptions.ElementNotFoundException;
-import com.bosch.library.library.exceptions.ValidationException;
 
 import java.util.List;
 

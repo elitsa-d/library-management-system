@@ -1,9 +1,9 @@
-package com.bosch.library.library.controller;
+package com.bosch.library.library.controllers;
 
+import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
+import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
 import com.bosch.library.library.entities.dto.LocationCreateDTO;
 import com.bosch.library.library.entities.dto.LocationDTO;
-import com.bosch.library.library.exceptions.ElementNotFoundException;
-import com.bosch.library.library.exceptions.ValidationException;
 import com.bosch.library.library.services.LocationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,17 +52,9 @@ public class LocationController {
      */
     @Operation(summary = "Create a new location", description = "Add a location by providing information about its address and id of the supplier who owns it")
     @PostMapping("/locations")
-    public ResponseEntity<?> createLocation(@Valid @RequestBody final LocationCreateDTO locationCreateDTO) {
-        try {
-            this.logger.info("Save a new location based on the following information: " + locationCreateDTO.toString());
-            final LocationDTO locationDTO = this.locationService.createLocation(locationCreateDTO);
-            return ResponseEntity.status(HttpStatus.OK).body(locationDTO);
-        } catch (final ElementNotFoundException e) {
-            this.logger.error("Saving the new location failed and ElementNotFoundException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (final ValidationException e) {
-            this.logger.error("Saving the new location failed and ValidationException occurred with the following message: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<LocationDTO> createLocation(@Valid @RequestBody final LocationCreateDTO locationCreateDTO) throws ValidationException, ElementNotFoundException {
+        this.logger.info("Save a new location based on the following information: " + locationCreateDTO.toString());
+        final LocationDTO locationDTO = this.locationService.createLocation(locationCreateDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(locationDTO);
     }
 }

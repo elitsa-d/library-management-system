@@ -1,4 +1,4 @@
-package com.bosch.library.library.controller;
+package com.bosch.library.library.controllers;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.web.bind.annotation.GetMapping;

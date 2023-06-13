@@ -1,5 +1,7 @@
 package com.bosch.library.library.services;
 
+import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
+import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
 import com.bosch.library.library.entities.Availability;
 import com.bosch.library.library.entities.Book;
 import com.bosch.library.library.entities.Location;
@@ -10,8 +12,6 @@ import com.bosch.library.library.entities.dto.AvailabilityDTO;
 import com.bosch.library.library.entities.mappers.AvailabilityByBookMapper;
 import com.bosch.library.library.entities.mappers.AvailabilityByLocationMapper;
 import com.bosch.library.library.entities.mappers.AvailabilityMapper;
-import com.bosch.library.library.exceptions.ElementNotFoundException;
-import com.bosch.library.library.exceptions.ValidationException;
 import com.bosch.library.library.repositories.AvailabilityRepository;
 import com.bosch.library.library.repositories.BookRepository;
 import com.bosch.library.library.repositories.LocationRepository;
