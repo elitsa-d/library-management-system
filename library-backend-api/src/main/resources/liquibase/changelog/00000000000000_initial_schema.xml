@@ -1,0 +1,123 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="die2sf (generated)" id="0000000000000-1">
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="availability_sequence" startValue="1"/>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-2">
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="book_sequence" startValue="1"/>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-3">
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="customer_sequence" startValue="1"/>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-4">
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="location_sequence" startValue="1"/>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-5">
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="locations_seq" startValue="1"/>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-6">
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="supplier_sequence" startValue="1"/>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-7">
+        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="50" maxValue="9223372036854775807"
+                        minValue="1" sequenceName="suppliers_seq" startValue="1"/>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-8">
+        <createTable tableName="book">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="book_pkey"/>
+            </column>
+            <column name="author" type="VARCHAR(255)"/>
+            <column name="category" type="VARCHAR(255)"/>
+            <column name="times_rented" type="BIGINT"/>
+            <column name="title" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-9">
+        <createTable tableName="customer">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="customer_pkey"/>
+            </column>
+            <column name="biography" type="VARCHAR(255)"/>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="last_name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-10">
+        <createTable tableName="customer_wishlist">
+            <column name="customer_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="book_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-11">
+        <createTable tableName="location">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="location_pkey"/>
+            </column>
+            <column name="address" type="VARCHAR(255)"/>
+            <column name="supplier_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-12">
+        <createTable tableName="location_book_availability">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="location_book_availability_pkey"/>
+            </column>
+            <column name="quantity" type="INTEGER"/>
+            <column name="book_id" type="BIGINT"/>
+            <column name="location_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-13">
+        <createTable tableName="supplier">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="supplier_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="rents" type="INTEGER"/>
+            <column name="type" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-14">
+        <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="customer_wishlist"
+                                 constraintName="fk17kjcdtct2xfudph7syjgjyv5" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="customer" validate="true"/>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-15">
+        <addForeignKeyConstraint baseColumnNames="location_id" baseTableName="location_book_availability"
+                                 constraintName="fk680bhd2da69jopsq3k9rhtmii" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="location" validate="true"/>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-16">
+        <addForeignKeyConstraint baseColumnNames="book_id" baseTableName="location_book_availability"
+                                 constraintName="fkhawqkjl7ic9n1bxj9cjw35v4q" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="book" validate="true"/>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-17">
+        <addForeignKeyConstraint baseColumnNames="supplier_id" baseTableName="location"
+                                 constraintName="fki5amyqww2pcf957ecidv742tc" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="supplier" validate="true"/>
+    </changeSet>
+    <changeSet author="die2sf (generated)" id="0000000000000-18">
+        <addForeignKeyConstraint baseColumnNames="book_id" baseTableName="customer_wishlist"
+                                 constraintName="fkpue9uvnl6niyq21bh5r7khsqu" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="book" validate="true"/>
+    </changeSet>
+</databaseChangeLog>
