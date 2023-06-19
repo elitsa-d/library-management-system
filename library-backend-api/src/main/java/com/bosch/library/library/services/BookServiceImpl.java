@@ -12,10 +12,13 @@ import com.bosch.library.library.entities.mappers.BookCreateMapper;
 import com.bosch.library.library.entities.mappers.BookMapper;
 import com.bosch.library.library.repositories.BookRepository;
 import com.bosch.library.library.repositories.specifications.BookSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookServiceImpl implements BookService {
@@ -36,9 +39,14 @@ public class BookServiceImpl implements BookService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookDTO> getAllBooks(final BookCriteria bookCriteria) {
-        final List<Book> books = this.bookRepository.findAll(BookSpecification.hasCriteria(bookCriteria));
-        return this.bookMapper.toDTOList(books);
+    public List<BookDTO> getAllBooks(final BookCriteria bookCriteria, final Pageable pageable) {
+        final Page<Book> books = this.bookRepository.findAll(BookSpecification.hasCriteria(bookCriteria), pageable);
+
+        final List<BookDTO> bookDTOs = books
+                .stream()
+                .map(this.bookMapper::toDTO)
+                .collect(Collectors.toList());
+        return bookDTOs;
     }
 
     @Transactional

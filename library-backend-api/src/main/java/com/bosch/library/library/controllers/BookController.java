@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,9 +42,9 @@ public class BookController {
      */
     @Operation(summary = "Get books", description = "Provide criteria to get books by specific characteristics or provide no criteria to get all books")
     @GetMapping("/books")
-    public List<BookDTO> getAllBooks(@ModelAttribute final BookCriteria bookCriteria) {
+    public List<BookDTO> getAllBooks(@ModelAttribute final BookCriteria bookCriteria, final Pageable pageable) {
         this.logger.info("Get all books by the following criteria: " + bookCriteria.toString());
-        return this.bookService.getAllBooks(bookCriteria);
+        return this.bookService.getAllBooks(bookCriteria, pageable);
     }
 
     /**

@@ -20,3 +20,7 @@ spring:
         enabled: true
   liquibase:
     changeLog: classpath:/liquibase/changelog-master.xml
+  data:
+    web:
+      pageable:
+        default-page-size: 50

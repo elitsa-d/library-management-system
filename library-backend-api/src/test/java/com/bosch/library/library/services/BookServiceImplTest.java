@@ -11,11 +11,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
@@ -59,10 +57,12 @@ public class BookServiceImplTest {
     @Test
     void testGetAllBooksReturnsListOfAllBooksWithLengthThree() {
         // Arrange mock repository
-        Mockito.when(this.bookRepository.findAll(any(Specification.class))).thenReturn(this.bookList);
+        final Page<Book> page = new PageImpl<>(this.bookList);
+        Mockito.when(this.bookRepository.findAll(ArgumentMatchers.<Specification<Book>>any(), any(Pageable.class))).thenReturn(page);
+        final Pageable pageable = PageRequest.of(0, 10, Sort.by("name"));
 
         // Retrieve all books
-        final int result = this.bookService.getAllBooks(null).size();
+        final int result = this.bookService.getAllBooks(null, pageable).size();
 
         // Assert that list of returned books has length of 3
         assertEquals(3, result);
@@ -71,10 +71,12 @@ public class BookServiceImplTest {
     @Test
     void testGetAllBooksReturnsValidListOfAllBooks() {
         // Arrange mock repository
-        Mockito.when(this.bookRepository.findAll(any(Specification.class))).thenReturn(this.bookList);
+        final Page<Book> page = new PageImpl<>(this.bookList);
+        Mockito.when(this.bookRepository.findAll(ArgumentMatchers.<Specification<Book>>any(), any(Pageable.class))).thenReturn(page);
+        final Pageable pageable = PageRequest.of(0, 10, Sort.by("name"));
 
         // Retrieve all books
-        final List<BookDTO> result = this.bookService.getAllBooks(null);
+        final List<BookDTO> result = this.bookService.getAllBooks(null, pageable);
         final List<BookDTO> expectedResult = this.bookMapper.toDTOList(this.bookList);
 
         // Assert that the right list of books is returned
