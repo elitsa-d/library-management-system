@@ -8,31 +8,28 @@ import com.bosch.library.library.entities.dto.BookDTO;
 import com.bosch.library.library.repositories.AvailabilityRepository;
 import com.bosch.library.library.repositories.BookRepository;
 import com.bosch.library.library.repositories.specifications.BookSpecification;
-import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@RunWith(SpringRunner.class)
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 public class BookControllerIntegrationTest {
 
     @Autowired
@@ -42,8 +39,7 @@ public class BookControllerIntegrationTest {
     private AvailabilityRepository availabilityRepository;
 
     @Autowired
-    private TestRestTemplate testRestTemplate;
-    private RestTemplate restTemplate;
+    private MockMvc mockMvc;
 
     private static final String DEFAULT_TITLE = "Gone with the Wind";
     private static final String DEFAULT_AUTHOR = "Margaret Mitchell";
@@ -53,12 +49,8 @@ public class BookControllerIntegrationTest {
     private static final String UPDATED_CATEGORY = "Short stories";
     private static final Long MISSING_ID = 15L;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        this.restTemplate = this.testRestTemplate.getRestTemplate();
-        final HttpClient httpClient = HttpClientBuilder.create().build();
-        this.restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
-
         final Book book1 = new Book(DEFAULT_TITLE, DEFAULT_AUTHOR, DEFAULT_CATEGORY);
         final Book book2 = new Book("Wuthering Heights", "Emily Brontë", "Novel");
         this.bookRepository.saveAll(List.of(book1, book2));
@@ -66,183 +58,118 @@ public class BookControllerIntegrationTest {
         this.availabilityRepository.save(new Availability(null, book1, 10));
     }
 
-    @After
+    @AfterEach
     public void emptyData() {
         this.bookRepository.deleteAll();
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testGetAllBooks() {
+    public void testGetAllBooks() throws Exception {
         // Prepare data
         final String requestUrl = "/api/books";
 
         // Perform get request
-        final ResponseEntity<List<BookDTO>> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert that status code is right and data is retrieved
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        final List<BookDTO> books = response.getBody();
-        assertNotNull(books);
-        assertEquals(2, books.size());
-
-        // Check that the retrieved data is right
-        final BookDTO book = books.get(0);
-        assertEquals(DEFAULT_TITLE, book.getTitle());
-        assertEquals(DEFAULT_AUTHOR, book.getAuthor());
-        assertEquals(DEFAULT_CATEGORY, book.getCategory());
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .get(requestUrl))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2))
+                .andExpect(jsonPath("$[0].title").value(DEFAULT_TITLE))
+                .andExpect(jsonPath("$[0].author").value(DEFAULT_AUTHOR))
+                .andExpect(jsonPath("$[0].category").value(DEFAULT_CATEGORY));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testGetAllBooksBySpecificCategory() {
+    public void testGetAllBooksBySpecificCategory() throws Exception {
         // Prepare data
         final String requestUrl = "/api/books?category=Novel";
 
         // Perform get request
-        final ResponseEntity<List<BookDTO>> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert that status code is right and data is retrieved
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        final List<BookDTO> books = response.getBody();
-        assertNotNull(books);
-        assertEquals(2, books.size());
-
-        // Check that the retrieved data is right
-        final BookDTO book = books.get(0);
-        assertEquals(DEFAULT_TITLE, book.getTitle());
-        assertEquals(DEFAULT_AUTHOR, book.getAuthor());
-        assertEquals(DEFAULT_CATEGORY, book.getCategory());
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .get(requestUrl))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2))
+                .andExpect(jsonPath("$[0].title").value(DEFAULT_TITLE))
+                .andExpect(jsonPath("$[0].author").value(DEFAULT_AUTHOR))
+                .andExpect(jsonPath("$[0].category").value(DEFAULT_CATEGORY));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testGetAllBooksBySpecificTitleAndAuthor() {
+    public void testGetAllBooksBySpecificTitleAndAuthor() throws Exception {
         // Prepare data
         final String requestUrl = "/api/books?title=Gone&author=Margaret";
 
         // Perform get request
-        final ResponseEntity<List<BookDTO>> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert that status code is right and data is retrieved
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        final List<BookDTO> books = response.getBody();
-        assertNotNull(books);
-        assertEquals(1, books.size());
-
-        // Check that the retrieved data is right
-        final BookDTO book = books.get(0);
-        assertEquals(DEFAULT_TITLE, book.getTitle());
-        assertEquals(DEFAULT_AUTHOR, book.getAuthor());
-        assertEquals(DEFAULT_CATEGORY, book.getCategory());
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .get(requestUrl))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(1))
+                .andExpect(jsonPath("$[0].title").value(DEFAULT_TITLE))
+                .andExpect(jsonPath("$[0].author").value(DEFAULT_AUTHOR))
+                .andExpect(jsonPath("$[0].category").value(DEFAULT_CATEGORY));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testGetAllBooksBySpecificTitleAuthorAndCategory() {
+    public void testGetAllBooksBySpecificTitleAuthorAndCategory() throws Exception {
         // Prepare data
         final String requestUrl = "/api/books?title=Gone&author=Margaret&category=Novel";
 
         // Perform get request
-        final ResponseEntity<List<BookDTO>> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert that status code is right and data is retrieved
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        final List<BookDTO> books = response.getBody();
-        assertNotNull(books);
-        assertEquals(1, books.size());
-
-        // Check that the retrieved data is right
-        final BookDTO book = books.get(0);
-        assertEquals(DEFAULT_TITLE, book.getTitle());
-        assertEquals(DEFAULT_AUTHOR, book.getAuthor());
-        assertEquals(DEFAULT_CATEGORY, book.getCategory());
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .get(requestUrl))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(1))
+                .andExpect(jsonPath("$[0].title").value(DEFAULT_TITLE))
+                .andExpect(jsonPath("$[0].author").value(DEFAULT_AUTHOR))
+                .andExpect(jsonPath("$[0].category").value(DEFAULT_CATEGORY));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testGetAllBooksBySpecificTitleAuthorCategoryAndQuantity() {
+    public void testGetAllBooksBySpecificTitleAuthorCategoryAndQuantity() throws Exception {
         // Prepare data
         final String requestUrl = "/api/books?title=Gone&author=Margaret&category=Novel&quantity=10";
 
         // Perform get request
-        final ResponseEntity<List<BookDTO>> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert that status code is right and data is retrieved
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        final List<BookDTO> books = response.getBody();
-        assertNotNull(books);
-        assertEquals(1, books.size());
-
-        // Check that the retrieved data is right
-        final BookDTO book = books.get(0);
-        assertEquals(DEFAULT_TITLE, book.getTitle());
-        assertEquals(DEFAULT_AUTHOR, book.getAuthor());
-        assertEquals(DEFAULT_CATEGORY, book.getCategory());
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .get(requestUrl))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(1))
+                .andExpect(jsonPath("$[0].title").value(DEFAULT_TITLE))
+                .andExpect(jsonPath("$[0].author").value(DEFAULT_AUTHOR))
+                .andExpect(jsonPath("$[0].category").value(DEFAULT_CATEGORY));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testGetAllBooksByInvalidQuantityReturnsEmptyList() {
+    public void testGetAllBooksByInvalidQuantityReturnsEmptyList() throws Exception {
         // Prepare data
         final String requestUrl = "/api/books?quantity=100";
 
         // Perform get request
-        final ResponseEntity<List<BookDTO>> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert that status code is right and the returned list is empty
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        final List<BookDTO> books = response.getBody();
-        assertNotNull(books);
-        assertEquals(0, books.size());
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .get(requestUrl))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(0));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testCreateBook() {
+    public void testCreateBook() throws Exception {
         // Prepare data
+        final ObjectMapper mapper = new ObjectMapper();
         final BookCreateDTO bookCreateDTO = new BookCreateDTO(UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
         final String requestUrl = "/api/books";
 
         // Perform post request
-        final ResponseEntity<BookDTO> response = this.testRestTemplate.postForEntity(
-                requestUrl,
-                bookCreateDTO,
-                BookDTO.class
-        );
-
-        // Assert that status code is right and data is retrieved
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .post(requestUrl)
+                        .content(mapper.writeValueAsString(bookCreateDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
 
         // Check that the data is saved
         final List<Book> savedBook = this.bookRepository.findAll(BookSpecification.hasCriteria(new BookCriteria(UPDATED_TITLE, UPDATED_AUTHOR, null, null)));
@@ -252,91 +179,70 @@ public class BookControllerIntegrationTest {
         assertEquals(bookCreateDTO.getCategory(), savedBook.get(0).getCategory());
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testEditBook() {
+    public void testEditBook() throws Exception {
         // Prepare data
+        final ObjectMapper mapper = new ObjectMapper();
         final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final BookDTO bookDTO = new BookDTO(book.getId(), UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
         final String requestUrl = "/api/books";
 
         // Perform patch request
-        final ResponseEntity<BookDTO> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.PATCH,
-                new HttpEntity<>(bookDTO),
-                BookDTO.class
-        );
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .patch(requestUrl)
+                        .content(mapper.writeValueAsString(bookDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
 
-        // Assert that status code is right and data is retrieved
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-
-        // Check that the data is saved
-        final List<Book> savedBook = this.bookRepository.findAll(BookSpecification.hasCriteria(new BookCriteria(UPDATED_TITLE, UPDATED_AUTHOR, null, null)));
-        assertNotNull(savedBook);
-        assertEquals(bookDTO.getTitle(), savedBook.get(0).getTitle());
-        assertEquals(bookDTO.getAuthor(), savedBook.get(0).getAuthor());
-        assertEquals(bookDTO.getCategory(), savedBook.get(0).getCategory());
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testEditBookThrowsOnInvalidBookId() {
+    public void testEditBookThrowsOnInvalidBookId() throws Exception {
         // Prepare data
+        final ObjectMapper mapper = new ObjectMapper();
         this.bookRepository.deleteById(MISSING_ID);
         final BookDTO bookDTO = new BookDTO(MISSING_ID, UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
         final String requestUrl = "/api/books";
 
         // Perform patch request
-        final ResponseEntity<String> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.PATCH,
-                new HttpEntity<>(bookDTO),
-                String.class
-        );
-
-        // Assert that status code is right and exception is thrown
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        final String errorMessage = response.getBody();
-        assertEquals("Book with id " + MISSING_ID + " doesn't exist.", errorMessage);
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .patch(requestUrl)
+                        .content(mapper.writeValueAsString(bookDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Book with id " + MISSING_ID + " doesn't exist."));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testDeleteBook() {
+    public void testDeleteBook() throws Exception {
         // Prepare data
         final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final String requestUrl = String.format("/api/books/%d", book.getId());
 
         // Perform delete request
-        final ResponseEntity<Long> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.DELETE,
-                null,
-                Long.class
-        );
+        final MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders
+                        .delete(requestUrl))
+                .andExpect(status().isOk())
+                .andReturn();
 
-        // Assert that status code is right and the right data is retrieved
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        final Long receivedId = response.getBody();
-        assertEquals(book.getId(), receivedId);
+        // Assert that the right data is returned
+        assertEquals(result.getResponse().getContentAsString(), book.getId().toString());
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testDeleteBookThrowsOnInvalidBookId() {
+    public void testDeleteBookThrowsOnInvalidBookId() throws Exception {
         // Prepare data
         this.bookRepository.deleteById(MISSING_ID);
         final String requestUrl = String.format("/api/books/%d", MISSING_ID);
 
         // Perform delete request
-        final ResponseEntity<String> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.DELETE,
-                null,
-                String.class
-        );
-
-        // Assert that status code is right and exception is thrown
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        final String errorMessage = response.getBody();
-        assertEquals("Book with id " + MISSING_ID + " doesn't exist.", errorMessage);
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .delete(requestUrl))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Book with id " + MISSING_ID + " doesn't exist."));
     }
 }

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class AvailabilityController {
      * @param id the id of the location whose available books are retrieved
      * @return a list of availability DTOs with information about the available books and their quantity
      */
+    @PreAuthorize("hasRole('admin') or hasRole('customer')")
     @Operation(summary = "Get all available books in a given location", description = "Provide a location id to get a list of all books available in it and their current quantity")
     @GetMapping("/availability/books-in-location/{id}")
     public List<AvailabilityByLocationDTO> getAvailableBooksInLocation(@PathVariable final Long id) {
@@ -52,6 +54,7 @@ public class AvailabilityController {
      * @param id the id of the book whose locations are retrieved
      * @return a list of availability DTOs with information about the locations and the quantity in which they have the book
      */
+    @PreAuthorize("hasRole('admin') or hasRole('customer')")
     @Operation(summary = "Get all locations that have a given book", description = "Provide a book id to get a list of the locations in which it is available and in what quantity")
     @GetMapping("/availability/locations-having-book/{id}")
     public List<AvailabilityByBookDTO> getLocationsWithAvailableBook(@PathVariable final Long id) {
@@ -66,6 +69,7 @@ public class AvailabilityController {
      * @return response entity with the created availability DTO
      * or error message when the provided data is inaccurate
      */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
     @Operation(summary = "Make a book available in a certain location", description = "Provide book id, location id and quantity to make the given book available in the specified location")
     @PostMapping("/availability")
     public ResponseEntity<AvailabilityDTO> addBookToLocation(@Valid @RequestBody final AvailabilityCreateDTO newAvailability) throws ValidationException, ElementNotFoundException {
@@ -81,6 +85,7 @@ public class AvailabilityController {
      * @return response entity with the updated availability DTO
      * or error message when the provided data is inaccurate
      */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
     @Operation(summary = "Change the quantity of an available book in a given location", description = "Provide book id, location id and the new quantity to change number of available books in the specified location")
     @PutMapping("/availability")
     public ResponseEntity<AvailabilityDTO> changeBookQuantity(@Valid @RequestBody final AvailabilityCreateDTO updatedAvailability) throws ValidationException, ElementNotFoundException {
@@ -97,6 +102,7 @@ public class AvailabilityController {
      * @return response entity with the id of the book made unavailable
      * or error message when the provided data is inaccurate
      */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
     @Operation(summary = "Make a book unavailable in a certain location", description = "Provide location id and book id to make the given book unavailable in the specified location")
     @DeleteMapping("/availability/location/{locationId}/book/{bookId}")
     public ResponseEntity<Long> removeBookAvailabilityFromLocation(@PathVariable final Long locationId, @PathVariable final Long bookId) throws ElementNotFoundException {

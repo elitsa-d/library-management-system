@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class BookController {
      * @return a list of book DTOs matching the criteria
      * or a list of all books if no criteria is provided
      */
+    @PreAuthorize("hasRole('admin') or hasRole('customer') or hasRole('supplier')")
     @Operation(summary = "Get books", description = "Provide criteria to get books by specific characteristics or provide no criteria to get all books")
     @GetMapping("/books")
     public List<BookDTO> getAllBooks(@ModelAttribute final BookCriteria bookCriteria, final Pageable pageable) {
@@ -53,6 +55,7 @@ public class BookController {
      * @return response entity with the book DTO
      * or error message when the API generating books is unavailable
      */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
     @Operation(summary = "Generate a book", description = "This endpoint gives you a book object that is generated with fake data")
     @PostMapping("/books/generate")
     public ResponseEntity<BookDTO> generateBook() throws ApiUnavailableException {
@@ -67,6 +70,7 @@ public class BookController {
      * @param bookCreateDTO the information for the book to be created, provided in a BookCreateDTO object
      * @return the created book DTO
      */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
     @Operation(summary = "Add a new book", description = "Add a book by providing information about its title, author and category")
     @PostMapping("/books")
     public BookDTO createBook(@Valid @RequestBody final BookCreateDTO bookCreateDTO) {
@@ -81,6 +85,7 @@ public class BookController {
      * @return response entity with the updated book DTO
      * or error message when the provided data is inaccurate
      */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
     @Operation(summary = "Edit an existing book", description = "Provide the id of the book to be edited and only the information that needs to be updated")
     @PatchMapping("/books")
     public ResponseEntity<BookDTO> editBook(@RequestBody final BookDTO updatedBook) throws ElementNotFoundException {
@@ -96,6 +101,7 @@ public class BookController {
      * @return response entity with the id of the deleted book
      * or error message when the provided id is inaccurate
      */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
     @Operation(summary = "Delete a book", description = "Provide the id of the book that should be removed")
     @DeleteMapping("/books/{id}")
     public ResponseEntity<Long> deleteBook(@PathVariable final Long id) throws ElementNotFoundException {

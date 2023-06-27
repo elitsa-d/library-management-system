@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Hidden
 @RestController
 public class HomeController {
+
     @GetMapping("/")
     public String getPage() {
         return "Program started";

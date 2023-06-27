@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class SupplierController {
      *
      * @return a list of supplier DTOs
      */
+    @PreAuthorize("hasRole('admin')")
     @Operation(summary = "Get all suppliers", description = "This endpoint gives you a list of all suppliers and the locations they own")
     @GetMapping("/suppliers")
     public List<SupplierDTO> getAllSuppliers() {
@@ -50,6 +52,7 @@ public class SupplierController {
      * @return response entity with the created supplier DTO
      * or error message when the provided data is inaccurate
      */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
     @Operation(summary = "Create a new supplier", description = "To add a supplier it is required to provide the supplier's name and type; providing a list of owned locations is optional")
     @PostMapping("/suppliers")
     public ResponseEntity<SupplierDTO> createSupplier(@Valid @RequestBody final SupplierCreateDTO supplierCreateDTO) throws ValidationException {
@@ -66,6 +69,7 @@ public class SupplierController {
      * @return response entity with the updated supplier DTO
      * or error message when the provided data is inaccurate
      */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
     @Operation(summary = "Change the supplier who owns a given location", description = "Provide supplier id and location id to change the supplier who owns the given location")
     @PutMapping("/suppliers/add-location/{supplierId}/{locationId}")
     public ResponseEntity<SupplierDTO> addNewLocation(@PathVariable final Long supplierId, @PathVariable final Long locationId) throws ElementNotFoundException {

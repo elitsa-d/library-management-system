@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public class CustomerController {
      *
      * @return a list of customer DTOs
      */
+    @PreAuthorize("hasRole('admin')")
     @Operation(summary = "Get all customers", description = "This endpoint gives you a list of all customers and their book wishlist")
     @GetMapping("/customers")
     public List<CustomerDTO> getAllCustomers() {
@@ -49,6 +51,7 @@ public class CustomerController {
      * @return response entity with the created customer DTO
      * or error message when the provided data is inaccurate
      */
+    @PreAuthorize("hasRole('admin') or hasRole('customer')")
     @Operation(summary = "Create a new customer", description = "To add a customer it is required to provide first name and last name; biography is optional")
     @PostMapping("/customers")
     public CustomerDTO createCustomer(@Valid @RequestBody final CustomerCreateDTO customerCreateDTO) {
@@ -63,6 +66,7 @@ public class CustomerController {
      * @return response entity with the updated customer DTO
      * or error message when the provided data is inaccurate
      */
+    @PreAuthorize("hasRole('admin') or hasRole('customer')")
     @Operation(summary = "Edit an existing customer", description = "Provide the id of the customer to be edited and only the information that needs to be updated")
     @PatchMapping("/customers")
     public ResponseEntity<CustomerDTO> editCustomer(@RequestBody final CustomerDTO updatedCustomer) throws ElementNotFoundException {
@@ -79,6 +83,7 @@ public class CustomerController {
      * @return response entity with the updated customer DTO
      * or error message when the provided data is inaccurate
      */
+    @PreAuthorize("hasRole('admin') or hasRole('customer')")
     @Operation(summary = "Add a book to the customer's wishlist", description = "Provide id of the customer and id of the book")
     @PutMapping("/customers/add-to-wishlist/{customerId}/{bookId}")
     public ResponseEntity<CustomerDTO> addBookToWishlist(@PathVariable final Long customerId, @PathVariable final Long bookId) throws ElementNotFoundException {
@@ -95,6 +100,7 @@ public class CustomerController {
      * @return response entity with the updated customer DTO
      * or error message when the provided data is inaccurate
      */
+    @PreAuthorize("hasRole('admin') or hasRole('customer')")
     @Operation(summary = "Remove a book from the customer's wishlist", description = "Provide id of the customer and id of the book")
     @PutMapping("/customers/remove-from-wishlist/{customerId}/{bookId}")
     public ResponseEntity<CustomerDTO> removeBookFromWishlist(@PathVariable final Long customerId, @PathVariable final Long bookId) throws ElementNotFoundException {
@@ -110,6 +116,7 @@ public class CustomerController {
      * @return response entity with the id of the deleted customer
      * or error message when the provided id is inaccurate
      */
+    @PreAuthorize("hasRole('admin') or hasRole('customer')")
     @Operation(summary = "Delete a customer", description = "Provide the id of the customer that should be removed")
     @DeleteMapping("/customers/{id}")
     public ResponseEntity<Long> deleteCustomer(@PathVariable final Long id) throws ElementNotFoundException {

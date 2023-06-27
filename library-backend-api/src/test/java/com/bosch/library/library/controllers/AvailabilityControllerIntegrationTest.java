@@ -4,35 +4,29 @@ import com.bosch.library.library.entities.Availability;
 import com.bosch.library.library.entities.Book;
 import com.bosch.library.library.entities.Location;
 import com.bosch.library.library.entities.criteria.BookCriteria;
-import com.bosch.library.library.entities.dto.AvailabilityByBookDTO;
-import com.bosch.library.library.entities.dto.AvailabilityByLocationDTO;
 import com.bosch.library.library.entities.dto.AvailabilityCreateDTO;
-import com.bosch.library.library.entities.dto.AvailabilityDTO;
 import com.bosch.library.library.repositories.AvailabilityRepository;
 import com.bosch.library.library.repositories.BookRepository;
 import com.bosch.library.library.repositories.LocationRepository;
 import com.bosch.library.library.repositories.specifications.BookSpecification;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.List;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 public class AvailabilityControllerIntegrationTest {
 
     @Autowired
@@ -45,7 +39,7 @@ public class AvailabilityControllerIntegrationTest {
     private BookRepository bookRepository;
 
     @Autowired
-    private TestRestTemplate testRestTemplate;
+    private MockMvc mockMvc;
 
     private static final String DEFAULT_TITLE = "Gone with the Wind";
     private static final String DEFAULT_AUTHOR = "Margaret Mitchell";
@@ -59,7 +53,7 @@ public class AvailabilityControllerIntegrationTest {
     private static final String UPDATED_ADDRESS = "Evlogi Georgiev 34";
     private static final Long MISSING_ID = 15L;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         final Location location = new Location(DEFAULT_ADDRESS);
         this.locationRepository.save(location);
@@ -71,72 +65,52 @@ public class AvailabilityControllerIntegrationTest {
         this.availabilityRepository.save(availability);
     }
 
-    @After
+    @AfterEach
     public void emptyData() {
         this.availabilityRepository.deleteAll();
         this.locationRepository.deleteAll();
         this.bookRepository.deleteAll();
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testGetAvailableBooksInLocation() {
+    public void testGetAvailableBooksInLocation() throws Exception {
         // Prepare data
         final Location location = this.locationRepository.findLocationByAddress(DEFAULT_ADDRESS);
         final String requestUrl = String.format("/api/availability/books-in-location/%d", location.getId());
 
         // Perform get request
-        final ResponseEntity<List<AvailabilityByLocationDTO>> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert that status code is right and data is retrieved
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        final List<AvailabilityByLocationDTO> availabilities = response.getBody();
-        assertNotNull(availabilities);
-        assertEquals(1, availabilities.size());
-
-        // Check that the retrieved data is right
-        final AvailabilityByLocationDTO availability = availabilities.get(0);
-        assertEquals(DEFAULT_TITLE, availability.getBook().getTitle());
-        assertEquals(DEFAULT_AUTHOR, availability.getBook().getAuthor());
-        assertEquals(DEFAULT_CATEGORY, availability.getBook().getCategory());
-        assertEquals(DEFAULT_QUANTITY, availability.getQuantity());
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .get(requestUrl))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(1))
+                .andExpect(jsonPath("$[0].book.title").value(DEFAULT_TITLE))
+                .andExpect(jsonPath("$[0].book.author").value(DEFAULT_AUTHOR))
+                .andExpect(jsonPath("$[0].book.category").value(DEFAULT_CATEGORY))
+                .andExpect(jsonPath("$[0].quantity").value(DEFAULT_QUANTITY));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testGetLocationsWithAvailableBook() {
+    public void testGetLocationsWithAvailableBook() throws Exception {
         // Prepare data
         final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final String requestUrl = String.format("/api/availability/locations-having-book/%d", book.getId());
 
         // Perform get request
-        final ResponseEntity<List<AvailabilityByBookDTO>> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert that status code is right and data is retrieved
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        final List<AvailabilityByBookDTO> availabilities = response.getBody();
-        assertNotNull(availabilities);
-        assertEquals(1, availabilities.size());
-
-        // Check that the retrieved data is right
-        final AvailabilityByBookDTO availability = availabilities.get(0);
-        assertEquals(DEFAULT_ADDRESS, availability.getLocation().getAddress());
-        assertEquals(DEFAULT_QUANTITY, availability.getQuantity());
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .get(requestUrl))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(1))
+                .andExpect(jsonPath("$[0].location.address").value(DEFAULT_ADDRESS))
+                .andExpect(jsonPath("$[0].quantity").value(DEFAULT_QUANTITY));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testAddBookToLocation() {
+    public void testAddBookToLocation() throws Exception {
         // Create new availability
+        final ObjectMapper mapper = new ObjectMapper();
         final Location location = this.locationRepository.findLocationByAddress(DEFAULT_ADDRESS);
         final Book book = new Book(UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
         this.bookRepository.save(book);
@@ -144,15 +118,11 @@ public class AvailabilityControllerIntegrationTest {
         final String requestUrl = "/api/availability";
 
         // Perform post request
-        final ResponseEntity<AvailabilityDTO> response = this.testRestTemplate.postForEntity(
-                requestUrl,
-                availabilityCreateDTO,
-                AvailabilityDTO.class
-        );
-
-        // Assert that status code is right and data is retrieved
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .post(requestUrl)
+                        .content(mapper.writeValueAsString(availabilityCreateDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
 
         // Check that the data is saved
         final Availability savedAvailability = this.availabilityRepository.findByLocationIdAndBookId(location.getId(), book.getId());
@@ -163,9 +133,11 @@ public class AvailabilityControllerIntegrationTest {
         assertEquals(availabilityCreateDTO.getQuantity(), savedAvailability.getQuantity());
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testAddBookToLocationThrowsOnInvalidLocationId() {
+    public void testAddBookToLocationThrowsOnInvalidLocationId() throws Exception {
         // Create new availability
+        final ObjectMapper mapper = new ObjectMapper();
         this.locationRepository.deleteById(MISSING_ID);
         final Book book = new Book(UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
         this.bookRepository.save(book);
@@ -173,21 +145,19 @@ public class AvailabilityControllerIntegrationTest {
         final String requestUrl = "/api/availability";
 
         // Perform post request
-        final ResponseEntity<String> response = this.testRestTemplate.postForEntity(
-                requestUrl,
-                availabilityCreateDTO,
-                String.class
-        );
-
-        // Assert that status code is right and exception is thrown
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        final String errorMessage = response.getBody();
-        assertEquals("Location with id " + MISSING_ID + " doesn't exist.", errorMessage);
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .post(requestUrl)
+                        .content(mapper.writeValueAsString(availabilityCreateDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Location with id " + MISSING_ID + " doesn't exist."));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testAddBookToLocationThrowsOnInvalidBookId() {
+    public void testAddBookToLocationThrowsOnInvalidBookId() throws Exception {
         // Create new availability
+        final ObjectMapper mapper = new ObjectMapper();
         final Location location = new Location(UPDATED_ADDRESS);
         this.locationRepository.save(location);
         this.bookRepository.deleteById(MISSING_ID);
@@ -195,21 +165,19 @@ public class AvailabilityControllerIntegrationTest {
         final String requestUrl = "/api/availability";
 
         // Perform post request
-        final ResponseEntity<String> response = this.testRestTemplate.postForEntity(
-                requestUrl,
-                availabilityCreateDTO,
-                String.class
-        );
-
-        // Assert that status code is right and exception is thrown
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        final String errorMessage = response.getBody();
-        assertEquals("Book with id " + MISSING_ID + " doesn't exist.", errorMessage);
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .post(requestUrl)
+                        .content(mapper.writeValueAsString(availabilityCreateDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Book with id " + MISSING_ID + " doesn't exist."));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testAddBookToLocationThrowsOnNegativeQuantity() {
+    public void testAddBookToLocationThrowsOnNegativeQuantity() throws Exception {
         // Create new availability
+        final ObjectMapper mapper = new ObjectMapper();
         final Location location = new Location(UPDATED_ADDRESS);
         this.locationRepository.save(location);
         final Book book = new Book(UPDATED_TITLE, UPDATED_AUTHOR, UPDATED_CATEGORY);
@@ -218,38 +186,30 @@ public class AvailabilityControllerIntegrationTest {
         final String requestUrl = "/api/availability";
 
         // Perform post request
-        final ResponseEntity<String> response = this.testRestTemplate.postForEntity(
-                requestUrl,
-                availabilityCreateDTO,
-                String.class
-        );
-
-        // Assert that status code is right and exception is thrown
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        final String errorMessage = response.getBody();
-        assertEquals("The provided quantity value is negative.", errorMessage);
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .post(requestUrl)
+                        .content(mapper.writeValueAsString(availabilityCreateDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("The provided quantity value is negative."));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testChangeBookQuantity() {
+    public void testChangeBookQuantity() throws Exception {
         // Prepare data
+        final ObjectMapper mapper = new ObjectMapper();
         final Location location = this.locationRepository.findLocationByAddress(DEFAULT_ADDRESS);
         final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final AvailabilityCreateDTO availabilityCreateDTO = new AvailabilityCreateDTO(location.getId(), book.getId(), UPDATED_QUANTITY);
         final String requestUrl = "/api/availability";
 
         // Perform put request
-        final ResponseEntity<AvailabilityDTO> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.PUT,
-                new HttpEntity<>(availabilityCreateDTO),
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert that status code is right and data is retrieved
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .put(requestUrl)
+                        .content(mapper.writeValueAsString(availabilityCreateDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
 
         // Check that the data is saved
         final Availability updatedAvailability = this.availabilityRepository.findByLocationIdAndBookId(location.getId(), book.getId());
@@ -260,136 +220,108 @@ public class AvailabilityControllerIntegrationTest {
         assertEquals(availabilityCreateDTO.getQuantity(), updatedAvailability.getQuantity());
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testChangeBookQuantityThrowsOnInvalidLocationId() {
+    public void testChangeBookQuantityThrowsOnInvalidLocationId() throws Exception {
         // Prepare data
+        final ObjectMapper mapper = new ObjectMapper();
         this.locationRepository.deleteById(MISSING_ID);
         final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final AvailabilityCreateDTO availabilityCreateDTO = new AvailabilityCreateDTO(MISSING_ID, book.getId(), UPDATED_QUANTITY);
         final String requestUrl = "/api/availability";
 
         // Perform put request
-        final ResponseEntity<String> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.PUT,
-                new HttpEntity<>(availabilityCreateDTO),
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert that status code is right and exception is thrown
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        final String errorMessage = response.getBody();
-        assertEquals("The specified book is not available in the given location.", errorMessage);
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .put(requestUrl)
+                        .content(mapper.writeValueAsString(availabilityCreateDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("The specified book is not available in the given location."));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testChangeBookQuantityThrowsOnInvalidBookId() {
+    public void testChangeBookQuantityThrowsOnInvalidBookId() throws Exception {
         // Prepare data
+        final ObjectMapper mapper = new ObjectMapper();
         final Location location = this.locationRepository.findLocationByAddress(DEFAULT_ADDRESS);
         this.bookRepository.deleteById(MISSING_ID);
         final AvailabilityCreateDTO availabilityCreateDTO = new AvailabilityCreateDTO(location.getId(), MISSING_ID, UPDATED_QUANTITY);
         final String requestUrl = "/api/availability";
 
         // Perform put request
-        final ResponseEntity<String> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.PUT,
-                new HttpEntity<>(availabilityCreateDTO),
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert that status code is right and exception is thrown
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        final String errorMessage = response.getBody();
-        assertEquals("The specified book is not available in the given location.", errorMessage);
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .put(requestUrl)
+                        .content(mapper.writeValueAsString(availabilityCreateDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("The specified book is not available in the given location."));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testChangeBookQuantityThrowsOnNegativeQuantity() {
+    public void testChangeBookQuantityThrowsOnNegativeQuantity() throws Exception {
         // Prepare data
+        final ObjectMapper mapper = new ObjectMapper();
         final Location location = this.locationRepository.findLocationByAddress(DEFAULT_ADDRESS);
         final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final AvailabilityCreateDTO availabilityCreateDTO = new AvailabilityCreateDTO(location.getId(), book.getId(), -UPDATED_QUANTITY);
         final String requestUrl = "/api/availability";
 
         // Perform put request
-        final ResponseEntity<String> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.PUT,
-                new HttpEntity<>(availabilityCreateDTO),
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        // Assert that status code is right and exception is thrown
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        final String errorMessage = response.getBody();
-        assertEquals("The provided quantity value is negative.", errorMessage);
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .put(requestUrl)
+                        .content(mapper.writeValueAsString(availabilityCreateDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("The provided quantity value is negative."));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testRemoveBookAvailabilityFromLocation() {
+    public void testRemoveBookAvailabilityFromLocation() throws Exception {
         // Prepare data
         final Location location = this.locationRepository.findLocationByAddress(DEFAULT_ADDRESS);
         final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final String requestUrl = String.format("/api/availability/location/%d/book/%d", location.getId(), book.getId());
 
         // Perform delete request
-        final ResponseEntity<Long> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.DELETE,
-                null,
-                Long.class
-        );
+        final MvcResult result = this.mockMvc.perform(MockMvcRequestBuilders
+                        .delete(requestUrl))
+                .andExpect(status().isOk())
+                .andReturn();
 
-        // Assert that status code is right and the right data is retrieved
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        final Long receivedId = response.getBody();
-        assertNotNull(receivedId);
-        assertEquals(book.getId(), receivedId);
+        // Assert that the right data is returned
+        assertEquals(result.getResponse().getContentAsString(), book.getId().toString());
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testRemoveBookAvailabilityFromLocationThrowsOnInvalidLocationId() {
+    public void testRemoveBookAvailabilityFromLocationThrowsOnInvalidLocationId() throws Exception {
         // Prepare data
         this.locationRepository.deleteById(MISSING_ID);
         final Book book = this.bookRepository.findOne(BookSpecification.hasCriteria(new BookCriteria(DEFAULT_TITLE, DEFAULT_AUTHOR, null, null))).get();
         final String requestUrl = String.format("/api/availability/location/%d/book/%d", MISSING_ID, book.getId());
 
         // Perform delete request
-        final ResponseEntity<String> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.DELETE,
-                null,
-                String.class
-        );
-
-        // Assert that status code is right and exception is thrown
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        final String errorMessage = response.getBody();
-        assertEquals("The specified book is not available in the given location.", errorMessage);
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .delete(requestUrl))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("The specified book is not available in the given location."));
     }
 
+    @WithMockUser(roles = {"admin"})
     @Test
-    public void testRemoveBookAvailabilityFromLocationThrowsOnInvalidBookId() {
+    public void testRemoveBookAvailabilityFromLocationThrowsOnInvalidBookId() throws Exception {
         // Prepare data
         final Location location = this.locationRepository.findLocationByAddress(DEFAULT_ADDRESS);
         this.bookRepository.deleteById(MISSING_ID);
         final String requestUrl = String.format("/api/availability/location/%d/book/%d", location.getId(), MISSING_ID);
 
         // Perform delete request
-        final ResponseEntity<String> response = this.testRestTemplate.exchange(
-                requestUrl,
-                HttpMethod.DELETE,
-                null,
-                String.class
-        );
-
-        // Assert that status code is right and exception is thrown
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        final String errorMessage = response.getBody();
-        assertEquals("The specified book is not available in the given location.", errorMessage);
+        this.mockMvc.perform(MockMvcRequestBuilders
+                        .delete(requestUrl))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("The specified book is not available in the given location."));
     }
 }

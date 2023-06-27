@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class LocationController {
      *
      * @return a list of location DTOs
      */
+    @PreAuthorize("hasRole('admin')")
     @Operation(summary = "Get all locations", description = "This endpoint gives you a list of all locations")
     @GetMapping("/locations")
     public List<LocationDTO> getAllLocations() {
@@ -50,6 +52,7 @@ public class LocationController {
      * @return response entity with the created location DTO
      * or error message when the provided data is inaccurate
      */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
     @Operation(summary = "Create a new location", description = "Add a location by providing information about its address and id of the supplier who owns it")
     @PostMapping("/locations")
     public ResponseEntity<LocationDTO> createLocation(@Valid @RequestBody final LocationCreateDTO locationCreateDTO) throws ValidationException, ElementNotFoundException {
