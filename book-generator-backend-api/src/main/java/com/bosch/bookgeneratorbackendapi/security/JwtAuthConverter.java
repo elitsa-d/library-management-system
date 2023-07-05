@@ -1,4 +1,4 @@
-package com.bosch.library.library.security;
+package com.bosch.bookgeneratorbackendapi.security;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
@@ -23,8 +23,6 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
 
     @Override
     public AbstractAuthenticationToken convert(@NonNull final Jwt jwt) {
-        JWTTokenHolder.setToken(jwt.getTokenValue());
-
         final Collection<GrantedAuthority> authorities = Stream.concat(
                 this.jwtGrantedAuthoritiesConverter.convert(jwt).stream(),
                 extractResourceRoles(jwt).stream()
@@ -35,8 +33,9 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
 
     private Collection<SimpleGrantedAuthority> extractResourceRoles(final Jwt jwt) {
         final Map<String, Map<String, ArrayList<String>>> resourceAccess = jwt.getClaim("resource_access");
-        final Map<String, ArrayList<String>> client = resourceAccess.get("library-backend-api");
+        final Map<String, ArrayList<String>> client = resourceAccess.get("book-generator-backend-api");
         final ArrayList<String> roles = client.get("roles");
+
         return roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(Collectors.toSet());
     }
 }
