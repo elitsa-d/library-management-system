@@ -4,12 +4,14 @@ import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundEx
 import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
 import com.bosch.library.library.entities.Location;
 import com.bosch.library.library.entities.Supplier;
+import com.bosch.library.library.entities.criteria.SupplierCriteria;
 import com.bosch.library.library.entities.dto.SupplierCreateDTO;
 import com.bosch.library.library.entities.dto.SupplierDTO;
 import com.bosch.library.library.entities.mappers.SupplierCreateMapper;
 import com.bosch.library.library.entities.mappers.SupplierMapper;
 import com.bosch.library.library.repositories.LocationRepository;
 import com.bosch.library.library.repositories.SupplierRepository;
+import com.bosch.library.library.repositories.specifications.SupplierSpecification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,8 +39,8 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<SupplierDTO> getAllSuppliers() {
-        return this.supplierMapper.toDTOList(this.supplierRepository.findAll());
+    public List<SupplierDTO> getAllSuppliers(final SupplierCriteria supplierCriteria) {
+        return this.supplierMapper.toDTOList(this.supplierRepository.findAll(SupplierSpecification.hasCriteria(supplierCriteria)));
     }
 
     @Transactional

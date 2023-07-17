@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,10 +63,10 @@ public class SupplierServiceImplTest {
     @Test
     void testGetAllSuppliersReturnsListOfAllSuppliersWithLengthTwo() {
         // Arrange mock repository
-        Mockito.when(this.supplierRepository.findAll()).thenReturn(this.supplierList);
+        Mockito.when(this.supplierRepository.findAll(any(Specification.class))).thenReturn(this.supplierList);
 
         // Retrieve all suppliers
-        final int result = this.supplierService.getAllSuppliers().size();
+        final int result = this.supplierService.getAllSuppliers(null).size();
 
         // Assert that list of returned suppliers has length of 2
         assertEquals(2, result);
@@ -74,10 +75,10 @@ public class SupplierServiceImplTest {
     @Test
     void testGetAllSuppliersReturnsValidListOfAllSuppliers() {
         // Arrange mock repository
-        Mockito.when(this.supplierRepository.findAll()).thenReturn(this.supplierList);
+        Mockito.when(this.supplierRepository.findAll(any(Specification.class))).thenReturn(this.supplierList);
 
         // Retrieve all suppliers
-        final List<SupplierDTO> result = this.supplierService.getAllSuppliers();
+        final List<SupplierDTO> result = this.supplierService.getAllSuppliers(null);
         final List<SupplierDTO> expectedResult = this.supplierMapper.toDTOList(this.supplierList);
 
         // Assert that the right list of suppliers is returned

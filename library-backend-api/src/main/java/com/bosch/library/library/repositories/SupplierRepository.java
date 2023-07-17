@@ -2,13 +2,14 @@ package com.bosch.library.library.repositories;
 
 import com.bosch.library.library.entities.Supplier;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 /**
  * Repository interface for managing suppliers.
  */
 @Repository
-public interface SupplierRepository extends JpaRepository<Supplier, Long> {
+public interface SupplierRepository extends JpaRepository<Supplier, Long>, JpaSpecificationExecutor<Supplier> {
 
     /**
      * Finds a supplier by a given name.

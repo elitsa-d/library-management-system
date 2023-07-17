@@ -2,6 +2,7 @@ package com.bosch.library.library.services;
 
 import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
 import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
+import com.bosch.library.library.entities.criteria.SupplierCriteria;
 import com.bosch.library.library.entities.dto.SupplierCreateDTO;
 import com.bosch.library.library.entities.dto.SupplierDTO;
 
@@ -17,7 +18,7 @@ public interface SupplierService {
      *
      * @return a list of supplier DTOs
      */
-    List<SupplierDTO> getAllSuppliers();
+    List<SupplierDTO> getAllSuppliers(SupplierCriteria supplierCriteria);
 
     /**
      * Creates a new supplier using the provided information.

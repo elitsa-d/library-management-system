@@ -2,6 +2,7 @@ package com.bosch.library.library.controllers;
 
 import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
 import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
+import com.bosch.library.library.entities.criteria.SupplierCriteria;
 import com.bosch.library.library.entities.dto.SupplierCreateDTO;
 import com.bosch.library.library.entities.dto.SupplierDTO;
 import com.bosch.library.library.services.SupplierService;
@@ -40,9 +41,9 @@ public class SupplierController {
     @PreAuthorize("hasRole('admin')")
     @Operation(summary = "Get all suppliers", description = "This endpoint gives you a list of all suppliers and the locations they own")
     @GetMapping("/suppliers")
-    public List<SupplierDTO> getAllSuppliers() {
+    public List<SupplierDTO> getAllSuppliers(@ModelAttribute final SupplierCriteria supplierCriteria) {
         this.logger.info("Get all suppliers");
-        return this.supplierService.getAllSuppliers();
+        return this.supplierService.getAllSuppliers(supplierCriteria);
     }
 
     /**
