@@ -3,12 +3,14 @@ package com.bosch.library.library.services;
 import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
 import com.bosch.library.library.entities.Book;
 import com.bosch.library.library.entities.Customer;
+import com.bosch.library.library.entities.criteria.CustomerCriteria;
 import com.bosch.library.library.entities.dto.CustomerCreateDTO;
 import com.bosch.library.library.entities.dto.CustomerDTO;
 import com.bosch.library.library.entities.mappers.CustomerCreateMapper;
 import com.bosch.library.library.entities.mappers.CustomerMapper;
 import com.bosch.library.library.repositories.BookRepository;
 import com.bosch.library.library.repositories.CustomerRepository;
+import com.bosch.library.library.repositories.specifications.CustomerSpecification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +37,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<CustomerDTO> getAllCustomers() {
-        return this.customerMapper.toDTOList(this.customerRepository.findAll());
+    public List<CustomerDTO> getAllCustomers(final CustomerCriteria customerCriteria) {
+        return this.customerMapper.toDTOList(this.customerRepository.findAll(CustomerSpecification.hasCriteria(customerCriteria)));
     }
 
     @Transactional

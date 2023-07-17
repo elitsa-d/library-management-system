@@ -6,7 +6,6 @@ public class BookCriteria {
     private String title;
     private String author;
     private String category;
-
     private Integer quantity;
 
     public BookCriteria() {

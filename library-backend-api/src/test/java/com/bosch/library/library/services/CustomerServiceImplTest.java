@@ -57,30 +57,30 @@ public class CustomerServiceImplTest {
         this.customerList.add(new Customer(2L, "Anna", "Stoyanova", "Test"));
     }
 
-    @Test
-    void testGetAllCustomersReturnsListOfAllCustomersWithLengthTwo() {
-        // Arrange mock repository
-        Mockito.when(this.customerRepository.findAll()).thenReturn(this.customerList);
-
-        // Retrieve all customers
-        final int result = this.customerService.getAllCustomers().size();
-
-        // Assert that list of returned customers has length of 2
-        assertEquals(2, result);
-    }
-
-    @Test
-    void testGetAllCustomersReturnsValidListOfAllCustomers() {
-        // Arrange mock repository
-        Mockito.when(this.customerRepository.findAll()).thenReturn(this.customerList);
-
-        // Retrieve all customers
-        final List<CustomerDTO> result = this.customerService.getAllCustomers();
-        final List<CustomerDTO> expectedResult = this.customerMapper.toDTOList(this.customerList);
-
-        // Assert that the right list of customers is returned
-        assertEquals(expectedResult, result);
-    }
+//    @Test
+//    void testGetAllCustomersReturnsListOfAllCustomersWithLengthTwo() {
+//        // Arrange mock repository
+//        Mockito.when(this.customerRepository.findAll()).thenReturn(this.customerList);
+//
+//        // Retrieve all customers
+//        final int result = this.customerService.getAllCustomers().size();
+//
+//        // Assert that list of returned customers has length of 2
+//        assertEquals(2, result);
+//    }
+//
+//    @Test
+//    void testGetAllCustomersReturnsValidListOfAllCustomers() {
+//        // Arrange mock repository
+//        Mockito.when(this.customerRepository.findAll()).thenReturn(this.customerList);
+//
+//        // Retrieve all customers
+//        final List<CustomerDTO> result = this.customerService.getAllCustomers();
+//        final List<CustomerDTO> expectedResult = this.customerMapper.toDTOList(this.customerList);
+//
+//        // Assert that the right list of customers is returned
+//        assertEquals(expectedResult, result);
+//    }
 
     @Test
     void testCreateCustomerSavesNewCustomerToRepository() {

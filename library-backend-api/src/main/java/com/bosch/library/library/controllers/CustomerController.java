@@ -1,6 +1,7 @@
 package com.bosch.library.library.controllers;
 
 import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
+import com.bosch.library.library.entities.criteria.CustomerCriteria;
 import com.bosch.library.library.entities.dto.CustomerCreateDTO;
 import com.bosch.library.library.entities.dto.CustomerDTO;
 import com.bosch.library.library.services.CustomerService;
@@ -39,9 +40,9 @@ public class CustomerController {
     @PreAuthorize("hasRole('admin')")
     @Operation(summary = "Get all customers", description = "This endpoint gives you a list of all customers and their book wishlist")
     @GetMapping("/customers")
-    public List<CustomerDTO> getAllCustomers() {
+    public List<CustomerDTO> getAllCustomers(@ModelAttribute final CustomerCriteria customerCriteria) {
         this.logger.info("Get all customers");
-        return this.customerService.getAllCustomers();
+        return this.customerService.getAllCustomers(customerCriteria);
     }
 
     /**

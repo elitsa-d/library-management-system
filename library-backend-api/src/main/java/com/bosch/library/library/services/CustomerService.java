@@ -1,6 +1,7 @@
 package com.bosch.library.library.services;
 
 import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
+import com.bosch.library.library.entities.criteria.CustomerCriteria;
 import com.bosch.library.library.entities.dto.CustomerCreateDTO;
 import com.bosch.library.library.entities.dto.CustomerDTO;
 
@@ -16,7 +17,7 @@ public interface CustomerService {
      *
      * @return a list of customer DTOs
      */
-    List<CustomerDTO> getAllCustomers();
+    List<CustomerDTO> getAllCustomers(CustomerCriteria customerCriteria);
 
     /**
      * Creates a new customer using the provided information.
