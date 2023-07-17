@@ -2,6 +2,7 @@ package com.bosch.library.library.repositories.specifications;
 
 import com.bosch.library.library.entities.Location;
 import com.bosch.library.library.entities.Location_;
+import com.bosch.library.library.entities.Supplier_;
 import com.bosch.library.library.entities.criteria.LocationCriteria;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,11 +20,10 @@ public interface LocationSpecification extends Specification<Location> {
             if (locationCriteria.getAddress() != null) {
                 predicates.add(criteriaBuilder.like(root.get(Location_.ADDRESS), "%" + locationCriteria.getAddress() + "%"));
             }
-
-//            TODO fix this predicate
-//            if (locationCriteria.getSupplier() != null) {
-//                predicates.add(criteriaBuilder.like(root.join(Location_.supplier).get(Location_.SUPPLIER), "%" + locationCriteria.getSupplier() + "%"));
-//            }
+            
+            if (locationCriteria.getSupplier() != null) {
+                predicates.add(criteriaBuilder.like(root.join("supplier").get(Supplier_.NAME), "%" + locationCriteria.getSupplier() + "%"));
+            }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };

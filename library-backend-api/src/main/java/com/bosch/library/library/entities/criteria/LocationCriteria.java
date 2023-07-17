@@ -5,27 +5,27 @@ import java.util.Objects;
 public class LocationCriteria {
     private String address;
 
-    private String supplier;
+    private String supplierName;
 
     public LocationCriteria() {
     }
 
-    public LocationCriteria(final String address, final String supplier) {
+    public LocationCriteria(final String address, final String supplierName) {
         this.address = address;
-        this.supplier = supplier;
+        this.supplierName = supplierName;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.address, this.supplier);
+        return Objects.hash(this.address, this.supplierName);
     }
 
     public String getSupplier() {
-        return this.supplier;
+        return this.supplierName;
     }
 
-    public void setSupplier(final String supplier) {
-        this.supplier = supplier;
+    public void setSupplier(final String supplierName) {
+        this.supplierName = supplierName;
     }
 
     public LocationCriteria(final String address) {
@@ -49,14 +49,14 @@ public class LocationCriteria {
             return false;
         }
         final LocationCriteria that = (LocationCriteria) o;
-        return Objects.equals(this.address, that.address) && Objects.equals(this.supplier, that.supplier);
+        return Objects.equals(this.address, that.address) && Objects.equals(this.supplierName, that.supplierName);
     }
 
     @Override
     public String toString() {
         return "LocationCriteria{" +
                 "address='" + this.address + '\'' +
-                ", supplier='" + this.supplier + '\'' +
+                ", supplierName='" + this.supplierName + '\'' +
                 '}';
     }
 }
