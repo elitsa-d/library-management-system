@@ -5,6 +5,7 @@ import com.bosch.library.library.controllers.errors.exceptions.ValidationExcepti
 import com.bosch.library.library.entities.Availability;
 import com.bosch.library.library.entities.Book;
 import com.bosch.library.library.entities.Location;
+import com.bosch.library.library.entities.criteria.BookCriteria;
 import com.bosch.library.library.entities.dto.AvailabilityByBookDTO;
 import com.bosch.library.library.entities.dto.AvailabilityByLocationDTO;
 import com.bosch.library.library.entities.dto.AvailabilityCreateDTO;
@@ -47,7 +48,8 @@ public class AvailabilityServiceImpl implements AvailabilityService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<AvailabilityByLocationDTO> getAvailableBooksInLocation(final Long id) {
+    public List<AvailabilityByLocationDTO> getAvailableBooksInLocation(final Long id, final BookCriteria bookCriteria) {
+//        TODO Make it possible to search books by a certain criteria
         return this.availabilityByLocationMapper.toDTOList(this.availabilityRepository.findAllByLocationId(id));
     }
 
