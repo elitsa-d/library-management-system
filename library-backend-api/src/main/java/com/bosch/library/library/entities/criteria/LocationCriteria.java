@@ -1,0 +1,62 @@
+package com.bosch.library.library.entities.criteria;
+
+import java.util.Objects;
+
+public class LocationCriteria {
+    private String address;
+
+    private String supplier;
+
+    public LocationCriteria() {
+    }
+
+    public LocationCriteria(final String address, final String supplier) {
+        this.address = address;
+        this.supplier = supplier;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.address, this.supplier);
+    }
+
+    public String getSupplier() {
+        return this.supplier;
+    }
+
+    public void setSupplier(final String supplier) {
+        this.supplier = supplier;
+    }
+
+    public LocationCriteria(final String address) {
+        this.address = address;
+    }
+
+    public String getAddress() {
+        return this.address;
+    }
+
+    public void setAddress(final String address) {
+        this.address = address;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final LocationCriteria that = (LocationCriteria) o;
+        return Objects.equals(this.address, that.address) && Objects.equals(this.supplier, that.supplier);
+    }
+
+    @Override
+    public String toString() {
+        return "LocationCriteria{" +
+                "address='" + this.address + '\'' +
+                ", supplier='" + this.supplier + '\'' +
+                '}';
+    }
+}

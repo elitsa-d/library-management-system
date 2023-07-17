@@ -3,12 +3,14 @@ package com.bosch.library.library.services;
 import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
 import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
 import com.bosch.library.library.entities.Location;
+import com.bosch.library.library.entities.criteria.LocationCriteria;
 import com.bosch.library.library.entities.dto.LocationCreateDTO;
 import com.bosch.library.library.entities.dto.LocationDTO;
 import com.bosch.library.library.entities.mappers.LocationCreateMapper;
 import com.bosch.library.library.entities.mappers.LocationMapper;
 import com.bosch.library.library.repositories.LocationRepository;
 import com.bosch.library.library.repositories.SupplierRepository;
+import com.bosch.library.library.repositories.specifications.LocationSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -42,8 +44,8 @@ public class LocationServiceImpl implements LocationService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<LocationDTO> getAllLocations() {
-        return this.locationMapper.toDTOList(this.locationRepository.findAll());
+    public List<LocationDTO> getAllLocations(final LocationCriteria locationCriteria) {
+        return this.locationMapper.toDTOList(this.locationRepository.findAll(LocationSpecification.hasCriteria(locationCriteria)));
     }
 
     @Transactional

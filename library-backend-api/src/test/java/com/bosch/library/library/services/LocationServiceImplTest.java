@@ -10,6 +10,7 @@ import com.bosch.library.library.entities.mappers.LocationCreateMapper;
 import com.bosch.library.library.entities.mappers.LocationMapper;
 import com.bosch.library.library.repositories.LocationRepository;
 import com.bosch.library.library.repositories.SupplierRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,12 +20,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -56,22 +59,22 @@ public class LocationServiceImplTest {
     @Test
     void testGetAllLocationsReturnsListOfAllLocationsWithLengthTwo() {
         // Arrange mock repository
-        Mockito.when(this.locationRepository.findAll()).thenReturn(this.locationList);
+        Mockito.when(this.locationRepository.findAll(any(Specification.class))).thenReturn(this.locationList);
 
         // Retrieve all locations
-        final int result = this.locationService.getAllLocations().size();
+        final int result = this.locationService.getAllLocations(null).size();
 
         // Assert that list of returned locations has length of 2
-        assertEquals(2, result);
+        Assertions.assertEquals(2, result);
     }
 
     @Test
     void testGetAllLocationsReturnsValidListOfAllLocations() {
         // Arrange mock repository
-        Mockito.when(this.locationRepository.findAll()).thenReturn(this.locationList);
+        Mockito.when(this.locationRepository.findAll(any(Specification.class))).thenReturn(this.locationList);
 
         // Retrieve all locations
-        final List<LocationDTO> result = this.locationService.getAllLocations();
+        final List<LocationDTO> result = this.locationService.getAllLocations(null);
         final List<LocationDTO> expectedResult = this.locationMapper.toDTOList(this.locationList);
 
         // Assert that the right list of locations is returned

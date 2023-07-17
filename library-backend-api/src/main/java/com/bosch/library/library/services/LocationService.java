@@ -2,6 +2,7 @@ package com.bosch.library.library.services;
 
 import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
 import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
+import com.bosch.library.library.entities.criteria.LocationCriteria;
 import com.bosch.library.library.entities.dto.LocationCreateDTO;
 import com.bosch.library.library.entities.dto.LocationDTO;
 
@@ -17,7 +18,7 @@ public interface LocationService {
      *
      * @return a list of location DTOs
      */
-    List<LocationDTO> getAllLocations();
+    List<LocationDTO> getAllLocations(LocationCriteria locationCriteria);
 
 
     /**

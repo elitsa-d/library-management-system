@@ -2,6 +2,7 @@ package com.bosch.library.library.controllers;
 
 import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
 import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
+import com.bosch.library.library.entities.criteria.LocationCriteria;
 import com.bosch.library.library.entities.dto.LocationCreateDTO;
 import com.bosch.library.library.entities.dto.LocationDTO;
 import com.bosch.library.library.services.LocationService;
@@ -40,9 +41,9 @@ public class LocationController {
     @PreAuthorize("hasRole('admin')")
     @Operation(summary = "Get all locations", description = "This endpoint gives you a list of all locations")
     @GetMapping("/locations")
-    public List<LocationDTO> getAllLocations() {
+    public List<LocationDTO> getAllLocations(@ModelAttribute final LocationCriteria locationCriteria) {
         this.logger.info("Get all locations");
-        return this.locationService.getAllLocations();
+        return this.locationService.getAllLocations(locationCriteria);
     }
 
     /**
