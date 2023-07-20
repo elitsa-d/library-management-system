@@ -125,4 +125,31 @@ public class LocationServiceImplTest {
                 "Updating location's data should throw ElementNotFoundException when location optional is empty."
         );
     }
+
+    @Test
+    void testDeleteLocation() throws ElementNotFoundException {
+        // Arrange mock repository
+        final Location location = this.locationList.get(0);
+        Mockito.when(this.locationRepository.findById(1L)).thenReturn(Optional.of(location));
+
+        // Delete a location
+        final Long deletedLocationId = this.locationService.deleteLocation(1L);
+
+        // Verify that it is deleted
+        verify(this.locationRepository, times(1)).delete(location);
+        assertEquals(1, deletedLocationId);
+    }
+
+    @Test
+    void testDeleteLocationThrowsOnInvalidLocationId() {
+        // Arrange mock repository
+        Mockito.when(this.locationRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Assert that deleting nonexistent location throws exception
+        assertThrows(
+                ElementNotFoundException.class,
+                () -> this.locationService.deleteLocation(1L),
+                "Deleting location should throw ElementNotFoundException when location optional is empty."
+        );
+    }
 }
