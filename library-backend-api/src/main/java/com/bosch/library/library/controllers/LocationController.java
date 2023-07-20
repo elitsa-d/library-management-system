@@ -77,4 +77,20 @@ public class LocationController {
         final LocationDTO locationDTO = this.locationService.updateLocation(updatedLocation);
         return ResponseEntity.status(HttpStatus.OK).body(locationDTO);
     }
+
+    /**
+     * Endpoint with DELETE mapping. Deletes the location with the provided id.
+     *
+     * @param id the id of the location to be deleted
+     * @return response entity with the id of the deleted location
+     * or error message when the provided id is inaccurate
+     */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
+    @Operation(summary = "Delete a location", description = "Provide the id of the location that should be removed")
+    @DeleteMapping("/locations/{id}")
+    public ResponseEntity<Long> deleteLocation(@PathVariable final Long id) throws ElementNotFoundException {
+        this.logger.info("Delete location with id " + id);
+        final Long deletedLocationId = this.locationService.deleteLocation(id);
+        return ResponseEntity.status(HttpStatus.OK).body(deletedLocationId);
+    }
 }

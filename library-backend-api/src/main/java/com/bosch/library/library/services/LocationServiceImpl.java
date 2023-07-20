@@ -84,4 +84,13 @@ public class LocationServiceImpl implements LocationService {
 
         return this.locationMapper.toDTO(this.locationRepository.save(location));
     }
+
+    @Transactional
+    @Override
+    public Long deleteLocation(final Long id) throws ElementNotFoundException {
+        final Location location = this.locationRepository.findById(id)
+                .orElseThrow(() -> new ElementNotFoundException("Location with id " + id + " doesn't exist."));
+        this.locationRepository.delete(location);
+        return id;
+    }
 }

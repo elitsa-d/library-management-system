@@ -39,4 +39,13 @@ public interface LocationService {
      * @throws ElementNotFoundException if the location with the provided id doesn't exist
      */
     LocationDTO updateLocation(LocationDTO location) throws ElementNotFoundException;
+
+    /**
+     * Deletes the location with the provided id.
+     *
+     * @param id the id of the location to be deleted
+     * @return the id of the deleted location
+     * @throws ElementNotFoundException if the location with the provided id doesn't exist
+     */
+    Long deleteLocation(Long id) throws ElementNotFoundException;
 }
