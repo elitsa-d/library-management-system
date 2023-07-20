@@ -54,6 +54,10 @@ public class SupplierServiceImplTest {
 
     final List<Supplier> supplierList = new ArrayList<>();
 
+    private static final String DEFAULT_SUPPLIER = "Orange";
+    private static final String DEFAULT_TYPE = "bookstore";
+    private static final Integer DEFAULT_RENTS = 0;
+
     @BeforeEach
     void setUp() {
         this.supplierList.add(new Supplier(1L, "Orange", "bookstore", 0));
@@ -162,6 +166,63 @@ public class SupplierServiceImplTest {
                 ElementNotFoundException.class,
                 () -> this.supplierService.addNewLocation(1L, 1L),
                 "Adding new location should throw ElementNotFoundException when location optional is empty."
+        );
+    }
+
+    @Test
+    void testUpdateSupplierUpdatesAllSupplierInfo() throws ElementNotFoundException {
+        // Arrange mock repository
+        final Supplier supplier = this.supplierList.get(0);
+        Mockito.when(this.supplierRepository.findById(1L)).thenReturn(Optional.of(supplier));
+        Mockito.when(this.supplierRepository.save(any(Supplier.class))).thenReturn(supplier);
+
+        // Change supplier's data
+        final SupplierDTO updatedSupplier = new SupplierDTO(1L, "Svetlina", "community center", null);
+        final SupplierDTO result = this.supplierService.updateSupplier(updatedSupplier);
+
+        // Assert that all new data is saved and valid
+        verify(this.supplierRepository, times(1)).save(supplier);
+        assertEquals(updatedSupplier.getName(), result.getName());
+    }
+
+    @Test
+    void testUpdateSupplierThrowsOnInvalidSupplierId() {
+        // Arrange mock repository
+        Mockito.when(this.supplierRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Assert that updating nonexistent supplier throws exception
+        final SupplierDTO updatedSupplier = new SupplierDTO(1L, "Svetlina", "community center", null);
+        assertThrows(
+                ElementNotFoundException.class,
+                () -> this.supplierService.updateSupplier(updatedSupplier),
+                "Updating supplier's data should throw ElementNotFoundException when supplier optional is empty."
+        );
+    }
+
+    @Test
+    void testDeleteSupplier() throws ElementNotFoundException {
+        // Arrange mock repository
+        final Supplier supplier = this.supplierList.get(0);
+        Mockito.when(this.supplierRepository.findById(1L)).thenReturn(Optional.of(supplier));
+
+        // Delete a supplier
+        final Long deletedSupplierId = this.supplierService.deleteSupplier(1L);
+
+        // Verify that it is deleted
+        verify(this.supplierRepository, times(1)).delete(supplier);
+        assertEquals(1, deletedSupplierId);
+    }
+
+    @Test
+    void testDeleteSupplierThrowsOnInvalidSupplierId() {
+        // Arrange mock repository
+        Mockito.when(this.supplierRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Assert that deleting nonexistent supplier throws exception
+        assertThrows(
+                ElementNotFoundException.class,
+                () -> this.supplierService.deleteSupplier(1L),
+                "Deleting supplier should throw ElementNotFoundException when supplier optional is empty."
         );
     }
 }
