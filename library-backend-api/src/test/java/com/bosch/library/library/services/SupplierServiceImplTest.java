@@ -54,10 +54,6 @@ public class SupplierServiceImplTest {
 
     final List<Supplier> supplierList = new ArrayList<>();
 
-    private static final String DEFAULT_SUPPLIER = "Orange";
-    private static final String DEFAULT_TYPE = "bookstore";
-    private static final Integer DEFAULT_RENTS = 0;
-
     @BeforeEach
     void setUp() {
         this.supplierList.add(new Supplier(1L, "Orange", "bookstore", 0));
