@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Controller class for managing books.
+ * Controller class for managing locations.
  */
 @Tag(description = "Access and modify information about the different locations", name = "Locations")
 @RequestMapping("/api")
@@ -59,6 +59,22 @@ public class LocationController {
     public ResponseEntity<LocationDTO> createLocation(@Valid @RequestBody final LocationCreateDTO locationCreateDTO) throws ValidationException, ElementNotFoundException {
         this.logger.info("Save a new location based on the following information: " + locationCreateDTO.toString());
         final LocationDTO locationDTO = this.locationService.createLocation(locationCreateDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(locationDTO);
+    }
+
+    /**
+     * Endpoint with PATCH mapping. Updates a location using the information from the request body.
+     *
+     * @param updatedLocation the updated location information, provided in a LocationDTO object
+     * @return response entity with the updated location DTO
+     * or error message when the provided data is inaccurate
+     */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
+    @Operation(summary = "Edit an existing location", description = "Provide the id of the location to be edited and only the information that needs to be updated")
+    @PatchMapping("/locations")
+    public ResponseEntity<LocationDTO> editLocation(@RequestBody final LocationDTO updatedLocation) throws ElementNotFoundException {
+        this.logger.info("Update location based on the following information: " + updatedLocation.toString());
+        final LocationDTO locationDTO = this.locationService.updateLocation(updatedLocation);
         return ResponseEntity.status(HttpStatus.OK).body(locationDTO);
     }
 }

@@ -30,4 +30,13 @@ public interface LocationService {
      * @throws ElementNotFoundException if the supplier with the provided id doesn't exist
      */
     LocationDTO createLocation(LocationCreateDTO location) throws ValidationException, ElementNotFoundException;
+
+    /**
+     * Updates a location using the provided information.
+     *
+     * @param location the updated location information
+     * @return the updated location DTO
+     * @throws ElementNotFoundException if the location with the provided id doesn't exist
+     */
+    LocationDTO updateLocation(LocationDTO location) throws ElementNotFoundException;
 }

@@ -69,4 +69,19 @@ public class LocationServiceImpl implements LocationService {
             throw new ValidationException("Supplier with id " + supplierId + " already has this location.");
         }
     }
+
+    @Transactional
+    @Override
+    public LocationDTO updateLocation(final LocationDTO updatedLocation) throws ElementNotFoundException {
+        final Long id = updatedLocation.getId();
+
+        final Location location = this.locationRepository.findById(id)
+                .orElseThrow(() -> new ElementNotFoundException("Location with id " + id + " doesn't exist."));
+
+        if (updatedLocation.getAddress() != null) {
+            location.setAddress(updatedLocation.getAddress());
+        }
+
+        return this.locationMapper.toDTO(this.locationRepository.save(location));
+    }
 }
