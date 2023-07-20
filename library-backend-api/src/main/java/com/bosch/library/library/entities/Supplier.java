@@ -25,11 +25,15 @@ public class Supplier {
     public Supplier() {
     }
 
-    public Supplier(final Long id, final String name, final String type, final Integer rents) {
-        this.id = id;
+    public Supplier(final String name, final String type, final Integer rents) {
         this.name = name;
         this.type = type;
         this.rents = rents;
+    }
+
+    public Supplier(final Long id, final String name, final String type, final Integer rents) {
+        this(name, type, rents);
+        this.id = id;
     }
 
     public List<Location> getLocations() {
