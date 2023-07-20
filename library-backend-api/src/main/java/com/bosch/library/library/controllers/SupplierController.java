@@ -78,4 +78,36 @@ public class SupplierController {
         final SupplierDTO supplierDTO = this.supplierService.addNewLocation(supplierId, locationId);
         return ResponseEntity.ok(supplierDTO);
     }
+
+    /**
+     * Endpoint with PATCH mapping. Updates a supplier using the information from the request body.
+     *
+     * @param updatedSupplier the updated supplier information, provided in a SupplierDTO object
+     * @return response entity with the updated supplier DTO
+     * or error message when the provided data is inaccurate
+     */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
+    @Operation(summary = "Edit an existing supplier", description = "Provide the id of the supplier to be edited and only the information that needs to be updated")
+    @PatchMapping("/suppliers")
+    public ResponseEntity<SupplierDTO> editSupplier(@RequestBody final SupplierDTO updatedSupplier) throws ElementNotFoundException {
+        this.logger.info("Update supplier based on the following information: " + updatedSupplier.toString());
+        final SupplierDTO supplierDTO = this.supplierService.updateSupplier(updatedSupplier);
+        return ResponseEntity.status(HttpStatus.OK).body(supplierDTO);
+    }
+
+    /**
+     * Endpoint with DELETE mapping. Deletes the supplier with the provided id.
+     *
+     * @param id the id of the supplier to be deleted
+     * @return response entity with the id of the deleted supplier
+     * or error message when the provided id is inaccurate
+     */
+    @PreAuthorize("hasRole('admin') or hasRole('supplier')")
+    @Operation(summary = "Delete a supplier", description = "Provide the id of the supplier that should be removed")
+    @DeleteMapping("/suppliers/{id}")
+    public ResponseEntity<Long> deleteSupplier(@PathVariable final Long id) throws ElementNotFoundException {
+        this.logger.info("Delete supplier with id " + id);
+        final Long deletedSupplierId = this.supplierService.deleteSupplier(id);
+        return ResponseEntity.status(HttpStatus.OK).body(deletedSupplierId);
+    }
 }

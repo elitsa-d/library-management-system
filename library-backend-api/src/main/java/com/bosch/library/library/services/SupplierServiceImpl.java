@@ -79,4 +79,32 @@ public class SupplierServiceImpl implements SupplierService {
         supplier.addLocation(location);
         return this.supplierMapper.toDTO(this.supplierRepository.save(supplier));
     }
+
+    @Transactional
+    @Override
+    public SupplierDTO updateSupplier(final SupplierDTO updatedSupplier) throws ElementNotFoundException {
+        final Long id = updatedSupplier.getId();
+
+        final Supplier supplier = this.supplierRepository.findById(id)
+                .orElseThrow(() -> new ElementNotFoundException("Supplier with id " + id + " doesn't exist."));
+
+        if (updatedSupplier.getName() != null) {
+            supplier.setName(updatedSupplier.getName());
+        }
+
+        if (updatedSupplier.getType() != null) {
+            supplier.setType(updatedSupplier.getType());
+        }
+
+        return this.supplierMapper.toDTO(this.supplierRepository.save(supplier));
+    }
+
+    @Transactional
+    @Override
+    public Long deleteSupplier(final Long id) throws ElementNotFoundException {
+        final Supplier supplier = this.supplierRepository.findById(id)
+                .orElseThrow(() -> new ElementNotFoundException("Supplier with id " + id + " doesn't exist."));
+        this.supplierRepository.delete(supplier);
+        return id;
+    }
 }

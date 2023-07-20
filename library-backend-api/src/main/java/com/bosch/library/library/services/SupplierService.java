@@ -39,4 +39,22 @@ public interface SupplierService {
      * @throws ElementNotFoundException if the supplier or the location with the provided id doesn't exist
      */
     SupplierDTO addNewLocation(Long supplierId, Long locationId) throws ElementNotFoundException;
+
+    /**
+     * Updates a supplier using the provided information.
+     *
+     * @param supplier the updated supplier information
+     * @return the updated supplier DTO
+     * @throws ElementNotFoundException if the supplier with the provided id doesn't exist
+     */
+    SupplierDTO updateSupplier(SupplierDTO supplier) throws ElementNotFoundException;
+
+    /**
+     * Deletes the supplier with the provided id.
+     *
+     * @param id the id of the supplier to be deleted
+     * @return the id of the deleted supplier
+     * @throws ElementNotFoundException if the supplier with the provided id doesn't exist
+     */
+    Long deleteSupplier(Long id) throws ElementNotFoundException;
 }
