@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-//TODO Fix tests in order to work properly
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 public class LocationControllerIntegrationTest {
@@ -49,16 +48,17 @@ public class LocationControllerIntegrationTest {
     public void setUp() {
         final Location location1 = new Location(DEFAULT_ADDRESS);
         final Location location2 = new Location("vitoshka 14");
-        this.locationRepository.saveAll(List.of(location1, location2));
-
         final Supplier supplier = new Supplier("Ciela", "bookstore", 0);
         supplier.addLocation(location1);
+
         this.supplierRepository.save(supplier);
+        this.locationRepository.saveAll(List.of(location1, location2));
     }
 
     @AfterEach
     public void emptyData() {
         this.locationRepository.deleteAll();
+        this.supplierRepository.deleteAll();
     }
 
     @WithMockUser(roles = {"admin"})
@@ -79,7 +79,7 @@ public class LocationControllerIntegrationTest {
     @Test
     public void testGetLocationBySpecificAddress() throws Exception {
         // Prepare data
-        final String requestUrl = "/api/locations?address=opalchenska 10";
+        final String requestUrl = "/api/locations?address=opalchenska 23";
 
         // Perform get request
         this.mockMvc.perform(MockMvcRequestBuilders
