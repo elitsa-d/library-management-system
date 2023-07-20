@@ -2,7 +2,6 @@ package com.bosch.library.library.controllers;
 
 import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
 import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
-import com.bosch.library.library.entities.criteria.BookCriteria;
 import com.bosch.library.library.entities.dto.AvailabilityByBookDTO;
 import com.bosch.library.library.entities.dto.AvailabilityByLocationDTO;
 import com.bosch.library.library.entities.dto.AvailabilityCreateDTO;
@@ -44,9 +43,9 @@ public class AvailabilityController {
     @PreAuthorize("hasRole('admin') or hasRole('customer')")
     @Operation(summary = "Get all available books in a given location", description = "Provide a location id to get a list of all books available in it and their current quantity")
     @GetMapping("/availability/books-in-location/{id}")
-    public List<AvailabilityByLocationDTO> getAvailableBooksInLocation(@PathVariable final Long id, @ModelAttribute final BookCriteria bookCriteria) {
+    public List<AvailabilityByLocationDTO> getAvailableBooksInLocation(@PathVariable final Long id) {
         this.logger.info("Get all books available in the location with id " + id);
-        return this.availabilityService.getAvailableBooksInLocation(id, bookCriteria);
+        return this.availabilityService.getAvailableBooksInLocation(id);
     }
 
     /**

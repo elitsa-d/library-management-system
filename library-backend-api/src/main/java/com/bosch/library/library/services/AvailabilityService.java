@@ -2,7 +2,6 @@ package com.bosch.library.library.services;
 
 import com.bosch.library.library.controllers.errors.exceptions.ElementNotFoundException;
 import com.bosch.library.library.controllers.errors.exceptions.ValidationException;
-import com.bosch.library.library.entities.criteria.BookCriteria;
 import com.bosch.library.library.entities.dto.AvailabilityByBookDTO;
 import com.bosch.library.library.entities.dto.AvailabilityByLocationDTO;
 import com.bosch.library.library.entities.dto.AvailabilityCreateDTO;
@@ -21,7 +20,7 @@ public interface AvailabilityService {
      * @param id the id of the location whose available books are retrieved
      * @return a list of availability DTOs with information about the books and their quantity
      */
-    List<AvailabilityByLocationDTO> getAvailableBooksInLocation(Long id, BookCriteria bookCriteria);
+    List<AvailabilityByLocationDTO> getAvailableBooksInLocation(Long id);
 
     /**
      * Retrieves a list of locations that have the book with the provided id available in them.
